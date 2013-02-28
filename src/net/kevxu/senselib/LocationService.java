@@ -8,6 +8,10 @@ public class LocationService {
 	private Context mContext;
 	private LocationManager mLocationManager;
 
+	protected interface LocationServiceListener {
+
+	}
+
 	protected LocationService(Context context) {
 		mContext = context;
 		mLocationManager = (LocationManager) mContext
