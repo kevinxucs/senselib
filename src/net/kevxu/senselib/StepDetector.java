@@ -10,7 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class StepDetector {
+public class StepDetector implements SensorEventListener {
 	private final static String TAG = "StepDetector";
 
 	private Context mContext;
@@ -19,14 +19,12 @@ public class StepDetector {
 
 	private Sensor mLinearAccelSensor;
 	private Sensor mGravitySensor;
-	private LinearAccelSensorListener mLinearAccelSensorListener;
-	private GravitySensorListener mGravitySensorListener;
 
-	public interface StepListener {
+	protected interface StepListener {
 		public void onStep();
 	}
 
-	public StepDetector(Context context) throws SensorNotAvailableException {
+	protected StepDetector(Context context) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext
 				.getSystemService(Context.SENSOR_SERVICE);
@@ -50,56 +48,44 @@ public class StepDetector {
 			mGravitySensor = gravitySensors.get(0);
 		}
 
-		mLinearAccelSensorListener = new LinearAccelSensorListener();
-		mGravitySensorListener = new GravitySensorListener();
-		mSensorManager.registerListener(mLinearAccelSensorListener,
-				mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(mGravitySensorListener, mGravitySensor,
+		mSensorManager.registerListener(this, mLinearAccelSensor,
+				SensorManager.SENSOR_DELAY_GAME);
+		mSensorManager.registerListener(this, mGravitySensor,
 				SensorManager.SENSOR_DELAY_GAME);
 
 		mStepListeners = new ArrayList<StepListener>();
 	}
 
-	public void addListener(StepListener stepListener) {
+	protected void addListener(StepListener stepListener) {
 		mStepListeners.add(stepListener);
 	}
 
-	public void removeListeners() {
+	protected void removeListeners() {
 		mStepListeners.clear();
 	}
 
-	public void close() {
-		mSensorManager.unregisterListener(mLinearAccelSensorListener);
-		mSensorManager.unregisterListener(mGravitySensorListener);
+	protected void close() {
+		mSensorManager.unregisterListener(this);
 	}
 
-	public void reload() {
-		mSensorManager.registerListener(mLinearAccelSensorListener,
-				mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(mGravitySensorListener, mGravitySensor,
+	protected void reload() {
+		mSensorManager.registerListener(this, mLinearAccelSensor,
+				SensorManager.SENSOR_DELAY_GAME);
+		mSensorManager.registerListener(this, mGravitySensor,
 				SensorManager.SENSOR_DELAY_GAME);
 	}
 
-	private class LinearAccelSensorListener implements SensorEventListener {
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-
-		}
 	}
 
-	private class GravitySensorListener implements SensorEventListener {
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		Sensor sensor = event.sensor;
+		if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
 
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
+		} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
 
 		}
 	}
