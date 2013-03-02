@@ -1,4 +1,4 @@
-package net.kevxu.senselib.shared;
+package net.kevxu.senselib;
 
 public class SensorNotAvailableException extends Exception {
 
