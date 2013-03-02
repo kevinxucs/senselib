@@ -21,7 +21,7 @@ public class StepDetectorDataPool {
 }
 
 class DataPool {
-
+	
 	private int mPoolSize;
 
 	private double[][] mPool;
@@ -45,7 +45,7 @@ class DataPool {
 		return mPoolSize;
 	}
 
-	void offer(double[] values) {
+	void append(double[] values) {
 		if (mSize < mPoolSize) {
 			mPool[mEndPos] = values;
 			mEndPos = (mEndPos + 1) % mPoolSize;
@@ -57,10 +57,31 @@ class DataPool {
 		}
 	}
 
+	double[] get(int i) {
+		if (i < mSize) {
+			return mPool[(mStartPos + i) % mPoolSize];
+		} else {
+			throw new IndexOutOfBoundsException();
+		}
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
+
 		str.append("[");
+		for (int i = 0; i < mSize; i++) {
+			double[] values = get(i);
+			str.append("[");
+			for (double value : values) {
+				str.append(value);
+				str.append(", ");
+			}
+			str.delete(str.length() - 2, str.length());
+			str.append("], ");
+		}
+		str.delete(str.length() - 2, str.length());
+		str.append("]");
 
 		return str.toString();
 	}
