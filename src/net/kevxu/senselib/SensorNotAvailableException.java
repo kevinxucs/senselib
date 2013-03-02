@@ -2,7 +2,7 @@ package net.kevxu.senselib;
 
 public class SensorNotAvailableException extends Exception {
 
-	private static final long serialVersionUID = 4885953180798436336L;
+	private static final long serialVersionUID = -6765170814665943123L;
 
 	public SensorNotAvailableException() {
 
