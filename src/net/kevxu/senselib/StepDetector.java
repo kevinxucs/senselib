@@ -84,7 +84,7 @@ public class StepDetector implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		Sensor sensor = event.sensor;
 		if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-
+			
 		} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
 
 		}
