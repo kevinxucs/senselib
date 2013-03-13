@@ -1,6 +1,5 @@
 package net.kevxu.senselib;
 
-import net.kevxu.senselib.shared.DataPool;
 
 public class StepDetectorDataPool {
 
