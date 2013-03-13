@@ -25,6 +25,10 @@ public class StepDetector implements SensorEventListener {
 	}
 
 	protected StepDetector(Context context) throws SensorNotAvailableException {
+		this(context, null);
+	}
+
+	protected StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -47,10 +51,23 @@ public class StepDetector implements SensorEventListener {
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 
 		mStepListeners = new ArrayList<StepListener>();
+
+		if (stepListener != null) {
+			mStepListeners.add(stepListener);
+		}
 	}
 
 	protected void addListener(StepListener stepListener) {
-		mStepListeners.add(stepListener);
+		if (stepListener != null)
+			mStepListeners.add(stepListener);
+		else
+			throw new NullPointerException("stepListener can not be null.");
+	}
+
+	protected void addListeners(List<StepListener> stepListeners) {
+		if (stepListeners.size() > 0) {
+			mStepListeners.addAll(stepListeners);
+		}
 	}
 
 	protected void removeListeners() {
