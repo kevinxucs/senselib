@@ -4,6 +4,8 @@ import android.content.Context;
 
 public class Sense {
 
+	private static final String TAG = "Sense";
+
 	private Context mContext;
 	private LocationService mLocationService;
 	private SensorService mSensorService;

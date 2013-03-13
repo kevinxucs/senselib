@@ -2,6 +2,8 @@ package net.kevxu.senselib;
 
 public class StepDetectorDataPool {
 
+	private static final String TAG = "StepDetectorDataPool";
+
 	private final static int DEFAULT_POOL_SIZE = 500;
 
 	private int mPoolSize;

@@ -5,6 +5,8 @@ import android.hardware.SensorManager;
 
 public class SensorService {
 
+	private static final String TAG = "SensorService";
+
 	private Context mContext;
 	private SensorManager mSensorManager;
 

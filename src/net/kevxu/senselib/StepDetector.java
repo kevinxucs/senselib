@@ -11,7 +11,7 @@ import android.hardware.SensorManager;
 
 public class StepDetector implements SensorEventListener {
 
-	private final static String TAG = "StepDetector";
+	private static final String TAG = "StepDetector";
 
 	private Context mContext;
 	private SensorManager mSensorManager;
@@ -19,6 +19,8 @@ public class StepDetector implements SensorEventListener {
 
 	private Sensor mLinearAccelSensor;
 	private Sensor mGravitySensor;
+
+	private StepDetectorDataPool mDataPool;
 
 	protected interface StepListener {
 		public void onStep();
@@ -55,6 +57,8 @@ public class StepDetector implements SensorEventListener {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
 		}
+
+		mDataPool = new StepDetectorDataPool();
 	}
 
 	protected void addListener(StepListener stepListener) {

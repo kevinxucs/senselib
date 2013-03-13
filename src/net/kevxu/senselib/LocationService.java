@@ -5,6 +5,8 @@ import android.location.LocationManager;
 
 public class LocationService {
 
+	private static final String TAG = "LocationService";
+
 	private Context mContext;
 	private LocationManager mLocationManager;
 
