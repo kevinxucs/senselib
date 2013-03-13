@@ -47,6 +47,18 @@ public class DataPool {
 		}
 	}
 
+	public float[][] getPrevious(int n) {
+		if (n > mSize) {
+			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
+		}
+
+		float[][] pd = new float[n][];
+		for (int i = 0; i < n; i++) {
+			pd[i] = get(mSize - 1 - i);
+		}
+		return pd;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
@@ -70,7 +82,10 @@ public class DataPool {
 
 	public static void main(String[] args) {
 		Random r = new Random();
-		DataPool pool = new DataPool(7);
+		DataPool pool = new DataPool(5);
+
+		// Appending data
+		System.out.println("Appending data:");
 		for (int i = 0; i < 10; i++) {
 			float[] values = new float[3];
 			for (int j = 0; j < 3; j++) {
@@ -79,6 +94,43 @@ public class DataPool {
 			pool.append(values);
 			System.out.println(pool);
 		}
-	}
+		System.out.println();
 
+		// Test get
+		System.out.println("Testing get:");
+		for (int i = 0; i < 20; i++) {
+			try {
+				float[] value = pool.get(i);
+				StringBuilder sb = new StringBuilder();
+				sb.append("[");
+				for (int j = 0; j < 3; j++) {
+					sb.append(value[j]).append(", ");
+				}
+				sb.delete(sb.length() - 2, sb.length());
+				System.out.println(i + ": " + sb.toString());
+			} catch (IndexOutOfBoundsException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println();
+
+		// Test getPrevious
+		System.out.println("Testing getPrevious:");
+		for (int i = 0; i < 10; i++) {
+			try {
+				float[][] pd = pool.getPrevious(i);
+				StringBuilder sb = new StringBuilder();
+				sb.append("[");
+				for (int j = 0; j < 3; j++) {
+					sb.append(pd[i][j]).append(", ");
+				}
+				sb.delete(sb.length() - 2, sb.length());
+				sb.append("]");
+				System.out.println("previous " + i + ": " + sb.toString());
+			} catch (IndexOutOfBoundsException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println();
+	}
 }
