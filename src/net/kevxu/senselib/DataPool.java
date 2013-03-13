@@ -6,14 +6,14 @@ public class DataPool {
 
 	private int mPoolSize;
 
-	private double[][] mPool;
+	private float[][] mPool;
 	private int mStartPos;
 	private int mEndPos;
 	private int mSize;
 
 	public DataPool(int poolSize) {
 		mPoolSize = poolSize;
-		mPool = new double[mPoolSize][];
+		mPool = new float[mPoolSize][];
 		mStartPos = 0;
 		mEndPos = 0;
 		mSize = 0;
@@ -27,7 +27,7 @@ public class DataPool {
 		return mPoolSize;
 	}
 
-	public void append(double[] values) {
+	public void append(float[] values) {
 		if (mSize < mPoolSize) {
 			mPool[mEndPos] = values;
 			mEndPos = (mEndPos + 1) % mPoolSize;
@@ -39,7 +39,7 @@ public class DataPool {
 		}
 	}
 
-	public double[] get(int i) {
+	public float[] get(int i) {
 		if (i < mSize) {
 			return mPool[(mStartPos + i) % mPoolSize];
 		} else {
@@ -53,9 +53,9 @@ public class DataPool {
 
 		str.append("[");
 		for (int i = 0; i < mSize; i++) {
-			double[] values = get(i);
+			float[] values = get(i);
 			str.append("[");
-			for (double value : values) {
+			for (float value : values) {
 				str.append(value);
 				str.append(", ");
 			}
@@ -72,9 +72,9 @@ public class DataPool {
 		Random r = new Random();
 		DataPool pool = new DataPool(7);
 		for (int i = 0; i < 10; i++) {
-			double[] values = new double[3];
+			float[] values = new float[3];
 			for (int j = 0; j < 3; j++) {
-				values[j] = (double) r.nextInt(10);
+				values[j] = (float) r.nextInt(10);
 			}
 			pool.append(values);
 			System.out.println(pool);
