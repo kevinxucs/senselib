@@ -10,13 +10,11 @@ public class StepDetectorDataPool {
 
 	protected StepDetectorDataPool() {
 		this(DEFAULT_POOL_SIZE);
-
 	}
 
 	protected StepDetectorDataPool(int poolSize) {
 		mPoolSize = poolSize;
 		mLinearAccelPool = new DataPool(mPoolSize);
 		mGravityPool = new DataPool(mPoolSize);
-
 	}
 }
