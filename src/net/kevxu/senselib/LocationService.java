@@ -14,8 +14,7 @@ public class LocationService {
 
 	protected LocationService(Context context) {
 		mContext = context;
-		mLocationManager = (LocationManager) mContext
-				.getSystemService(Context.LOCATION_SERVICE);
+		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
 	}
 

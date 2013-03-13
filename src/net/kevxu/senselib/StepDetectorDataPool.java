@@ -1,6 +1,5 @@
 package net.kevxu.senselib;
 
-
 public class StepDetectorDataPool {
 
 	private final static int DEFAULT_POOL_SIZE = 500;
@@ -11,11 +10,13 @@ public class StepDetectorDataPool {
 
 	protected StepDetectorDataPool() {
 		this(DEFAULT_POOL_SIZE);
+
 	}
 
 	protected StepDetectorDataPool(int poolSize) {
 		mPoolSize = poolSize;
 		mLinearAccelPool = new DataPool(mPoolSize);
 		mGravityPool = new DataPool(mPoolSize);
+
 	}
 }
