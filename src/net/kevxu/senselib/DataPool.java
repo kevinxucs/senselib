@@ -53,19 +53,33 @@ public class DataPool<T> {
 		}
 	}
 
-	public T getFromBack(int i) {
-		return get(mSize - 1 - i);
-	}
-
-	public List<T> getPrevious(int n) {
+	public List<T> getList(int n) {
 		if (n > mSize) {
 			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
 		}
 
-		List<T> pd = new ArrayList<T>();
+		List<T> fd = new ArrayList<T>(n);
+		for (int i = 0; i < n; i++) {
+			fd.add(get(i));
+		}
+
+		return fd;
+	}
+
+	public T getFromBack(int i) {
+		return get(mSize - 1 - i);
+	}
+
+	public List<T> getListFromBack(int n) {
+		if (n > mSize) {
+			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
+		}
+
+		List<T> pd = new ArrayList<T>(n);
 		for (int i = 0; i < n; i++) {
 			pd.add(getFromBack(i));
 		}
+
 		return pd;
 	}
 
@@ -128,7 +142,7 @@ public class DataPool<T> {
 		System.out.println("Testing getPrevious:");
 		for (int n = 0; n < 10; n++) {
 			try {
-				List<float[]> pd = pool.getPrevious(n);
+				List<float[]> pd = pool.getListFromBack(n);
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < n; i++) {
 					sb.append("[");

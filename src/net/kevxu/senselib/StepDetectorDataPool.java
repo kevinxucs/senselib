@@ -65,14 +65,19 @@ public class StepDetectorDataPool {
 		return dataPool.get(i);
 	}
 
+	protected synchronized List<float[]> getList(int type, int n) {
+		DataPool<float[]> dataPool = getDataPool(type);
+		return dataPool.getList(n);
+	}
+
 	protected synchronized float[] getFromBack(int type, int i) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.getFromBack(i);
 	}
 
-	protected synchronized List<float[]> getPrevious(int type, int n) {
+	protected synchronized List<float[]> getListFromBack(int type, int n) {
 		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getPrevious(n);
+		return dataPool.getListFromBack(n);
 	}
 
 }
