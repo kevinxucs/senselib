@@ -43,7 +43,7 @@ public class DataPool {
 		if (i < mSize) {
 			return mPool[(mStartPos + i) % mPoolSize];
 		} else {
-			throw new IndexOutOfBoundsException();
+			throw new IndexOutOfBoundsException("i is larger than DataPool size.");
 		}
 	}
 
@@ -116,17 +116,20 @@ public class DataPool {
 
 		// Test getPrevious
 		System.out.println("Testing getPrevious:");
-		for (int i = 0; i < 10; i++) {
+		for (int n = 0; n < 10; n++) {
 			try {
-				float[][] pd = pool.getPrevious(i);
+				float[][] pd = pool.getPrevious(n);
 				StringBuilder sb = new StringBuilder();
-				sb.append("[");
-				for (int j = 0; j < 3; j++) {
-					sb.append(pd[i][j]).append(", ");
+				for (int i = 0; i < n; i++) {
+					sb.append("[");
+					for (int j = 0; j < 3; j++) {
+						sb.append(pd[i][j]).append(", ");
+					}
+					sb.delete(sb.length() - 2, sb.length());
+					sb.append("], ");
 				}
 				sb.delete(sb.length() - 2, sb.length());
-				sb.append("]");
-				System.out.println("previous " + i + ": " + sb.toString());
+				System.out.println("previous " + n + ": " + sb.toString());
 			} catch (IndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
