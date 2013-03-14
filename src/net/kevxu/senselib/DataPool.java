@@ -128,7 +128,8 @@ public class DataPool {
 					sb.delete(sb.length() - 2, sb.length());
 					sb.append("], ");
 				}
-				sb.delete(sb.length() - 2, sb.length());
+				if (n > 0)
+					sb.delete(sb.length() - 2, sb.length());
 				System.out.println("previous " + n + ": " + sb.toString());
 			} catch (IndexOutOfBoundsException e) {
 				e.printStackTrace();
