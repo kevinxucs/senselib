@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 public class StepDetector implements SensorEventListener {
 
@@ -23,17 +24,16 @@ public class StepDetector implements SensorEventListener {
 	private StepDetectorDataPool mDataPool;
 
 	private StepDetectorCalculationTask mStepDetectorCalculationTask;
-	private Thread mStepDetectorCalculationThread;
 
-	protected interface StepListener {
+	public interface StepListener {
 		public void onStep();
 	}
 
-	protected StepDetector(Context context) throws SensorNotAvailableException {
+	public StepDetector(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	protected StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
+	public StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -64,11 +64,10 @@ public class StepDetector implements SensorEventListener {
 		mDataPool = new StepDetectorDataPool();
 
 		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
-		mStepDetectorCalculationThread = new Thread(mStepDetectorCalculationTask);
-		mStepDetectorCalculationThread.start();
+		mStepDetectorCalculationTask.start();
 	}
 
-	private class StepDetectorCalculationTask implements Runnable {
+	private class StepDetectorCalculationTask extends Thread {
 
 		private volatile boolean stopped;
 
@@ -76,48 +75,59 @@ public class StepDetector implements SensorEventListener {
 			stopped = false;
 		}
 
-		public void stop() {
+		public void terminate() {
 			stopped = true;
 		}
 
 		@Override
 		public void run() {
 			while (!stopped) {
-				
+
 			}
 		}
 
 	}
 
-	protected void addListener(StepListener stepListener) {
+	public void addListener(StepListener stepListener) {
 		if (stepListener != null)
 			mStepListeners.add(stepListener);
 		else
 			throw new NullPointerException("stepListener can not be null.");
 	}
 
-	protected void addListeners(List<StepListener> stepListeners) {
+	public void addListeners(List<StepListener> stepListeners) {
 		if (stepListeners.size() > 0) {
 			mStepListeners.addAll(stepListeners);
 		}
 	}
 
-	protected void removeListeners() {
+	public void removeListeners() {
 		mStepListeners.clear();
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	protected void close() {
-		mStepDetectorCalculationTask.stop();
+	public void close() {
+		mStepDetectorCalculationTask.terminate();
+		Log.v(TAG, "Waiting for StepDetectorCalculationTask to terminate.");
+		try {
+			mStepDetectorCalculationTask.join();
+		} catch (InterruptedException e) {
+			Log.e(TAG, e.getMessage(), e);
+		}
+		Log.v(TAG, "StepDetectorCalculationTask terminated.");
+		mStepDetectorCalculationTask = null;
+
 		mSensorManager.unregisterListener(this);
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	protected void reload() {
+	public void reload() {
+		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
+		mStepDetectorCalculationTask.start();
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 	}
