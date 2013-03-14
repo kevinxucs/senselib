@@ -3,6 +3,7 @@ package net.kevxu.senselib;
 import java.util.List;
 
 import android.hardware.Sensor;
+import android.util.Log;
 
 public class StepDetectorDataPool {
 
@@ -46,5 +47,18 @@ public class StepDetectorDataPool {
 		}
 
 		return this;
+	}
+
+	protected int getSize(int type) {
+		if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+			return mLinearAccelPool.size();
+		} else if (type == Sensor.TYPE_GRAVITY) {
+			return mGravityPool.size();
+		} else {
+			IllegalArgumentException e = new IllegalArgumentException("No such type "
+					+ type + ".");
+			Log.e(TAG, e.getMessage(), e);
+			throw e;
+		}
 	}
 }
