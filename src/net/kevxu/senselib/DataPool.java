@@ -1,5 +1,7 @@
 package net.kevxu.senselib;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class DataPool {
@@ -47,14 +49,14 @@ public class DataPool {
 		}
 	}
 
-	public float[][] getPrevious(int n) {
+	public List<float[]> getPrevious(int n) {
 		if (n > mSize) {
 			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
 		}
 
-		float[][] pd = new float[n][];
+		List<float[]> pd = new ArrayList<float[]>();
 		for (int i = 0; i < n; i++) {
-			pd[i] = get(mSize - 1 - i);
+			pd.add(get(mSize - 1 - i));
 		}
 		return pd;
 	}
@@ -118,12 +120,12 @@ public class DataPool {
 		System.out.println("Testing getPrevious:");
 		for (int n = 0; n < 10; n++) {
 			try {
-				float[][] pd = pool.getPrevious(n);
+				List<float[]> pd = pool.getPrevious(n);
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < n; i++) {
 					sb.append("[");
 					for (int j = 0; j < 3; j++) {
-						sb.append(pd[i][j]).append(", ");
+						sb.append(pd.get(i)[j]).append(", ");
 					}
 					sb.delete(sb.length() - 2, sb.length());
 					sb.append("], ");
