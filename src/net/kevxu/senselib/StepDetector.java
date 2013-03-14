@@ -89,10 +89,7 @@ public class StepDetector implements SensorEventListener {
 	}
 
 	public void addListener(StepListener stepListener) {
-		if (stepListener != null)
-			mStepListeners.add(stepListener);
-		else
-			throw new NullPointerException("stepListener can not be null.");
+		mStepListeners.add(stepListener);
 	}
 
 	public void addListeners(List<StepListener> stepListeners) {
