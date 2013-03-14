@@ -39,14 +39,14 @@ public class StepDetectorDataPool {
 		}
 	}
 
-	protected StepDetectorDataPool addData(int type, float[] values) {
+	protected synchronized StepDetectorDataPool addData(int type, float[] values) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		dataPool.append(values);
 
 		return this;
 	}
 
-	protected StepDetectorDataPool addDataList(int type, List<float[]> valuesList) {
+	protected synchronized StepDetectorDataPool addDataList(int type, List<float[]> valuesList) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		for (float[] values : valuesList) {
 			dataPool.append(values);
@@ -55,17 +55,17 @@ public class StepDetectorDataPool {
 		return this;
 	}
 
-	protected int getSize(int type) {
+	protected synchronized int getSize(int type) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.size();
 	}
 
-	protected float[] get(int type, int i) {
+	protected synchronized float[] get(int type, int i) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.get(i);
 	}
 
-	protected List<float[]> getPrevious(int type, int n) {
+	protected synchronized List<float[]> getPrevious(int type, int n) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.getPrevious(n);
 	}
