@@ -82,7 +82,7 @@ public class StepDetector implements SensorEventListener {
 		@Override
 		public void run() {
 			while (!stopped) {
-
+				
 			}
 		}
 
@@ -125,6 +125,8 @@ public class StepDetector implements SensorEventListener {
 	public void reload() {
 		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
 		mStepDetectorCalculationTask.start();
+		Log.v(TAG, "StepDetectorCalculationTask reloaded.");
+
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 	}

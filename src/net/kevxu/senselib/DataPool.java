@@ -53,6 +53,10 @@ public class DataPool<T> {
 		}
 	}
 
+	public T getFromBack(int i) {
+		return get(mSize - 1 - i);
+	}
+
 	public List<T> getPrevious(int n) {
 		if (n > mSize) {
 			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
@@ -60,7 +64,7 @@ public class DataPool<T> {
 
 		List<T> pd = new ArrayList<T>();
 		for (int i = 0; i < n; i++) {
-			pd.add(get(mSize - 1 - i));
+			pd.add(getFromBack(i));
 		}
 		return pd;
 	}
