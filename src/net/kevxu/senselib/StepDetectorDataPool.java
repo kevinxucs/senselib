@@ -25,7 +25,7 @@ public class StepDetectorDataPool {
 		mGravityPool = new DataPool<float[]>(mPoolSize);
 	}
 
-	protected DataPool getDataPool(int type) {
+	protected DataPool<float[]> getDataPool(int type) {
 		switch (type) {
 		case Sensor.TYPE_LINEAR_ACCELERATION:
 			return mLinearAccelPool;
@@ -40,14 +40,14 @@ public class StepDetectorDataPool {
 	}
 
 	protected StepDetectorDataPool addData(int type, float[] values) {
-		DataPool dataPool = getDataPool(type);
+		DataPool<float[]> dataPool = getDataPool(type);
 		dataPool.append(values);
 
 		return this;
 	}
 
 	protected StepDetectorDataPool addDataList(int type, List<float[]> valuesList) {
-		DataPool dataPool = getDataPool(type);
+		DataPool<float[]> dataPool = getDataPool(type);
 		for (float[] values : valuesList) {
 			dataPool.append(values);
 		}
@@ -56,17 +56,17 @@ public class StepDetectorDataPool {
 	}
 
 	protected int getSize(int type) {
-		DataPool dataPool = getDataPool(type);
+		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.size();
 	}
 
 	protected float[] get(int type, int i) {
-		DataPool dataPool = getDataPool(type);
+		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.get(i);
 	}
 
 	protected List<float[]> getPrevious(int type, int n) {
-		DataPool dataPool = getDataPool(type);
+		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.getPrevious(n);
 	}
 
