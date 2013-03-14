@@ -26,11 +26,12 @@ public class StepDetectorDataPool {
 	}
 
 	protected DataPool getDataPool(int type) {
-		if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+		switch (type) {
+		case Sensor.TYPE_LINEAR_ACCELERATION:
 			return mLinearAccelPool;
-		} else if (type == Sensor.TYPE_GRAVITY) {
+		case Sensor.TYPE_GRAVITY:
 			return mGravityPool;
-		} else {
+		default:
 			IllegalArgumentException e = new IllegalArgumentException("No such type "
 					+ type + ".");
 			Log.e(TAG, e.getMessage(), e);
