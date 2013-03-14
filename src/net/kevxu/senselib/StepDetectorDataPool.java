@@ -1,5 +1,7 @@
 package net.kevxu.senselib;
 
+import java.util.List;
+
 import android.hardware.Sensor;
 
 public class StepDetectorDataPool {
@@ -27,6 +29,20 @@ public class StepDetectorDataPool {
 			mLinearAccelPool.append(values);
 		} else if (type == Sensor.TYPE_GRAVITY) {
 			mGravityPool.append(values);
+		}
+
+		return this;
+	}
+
+	protected StepDetectorDataPool addDataList(int type, List<float[]> valuesList) {
+		if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+			for (float[] values : valuesList) {
+				mLinearAccelPool.append(values);
+			}
+		} else if (type == Sensor.TYPE_GRAVITY) {
+			for (float[] values : valuesList) {
+				mGravityPool.append(values);
+			}
 		}
 
 		return this;
