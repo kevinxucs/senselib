@@ -23,7 +23,7 @@ public class StepDetector implements SensorEventListener {
 
 	private StepDetectorDataPool mDataPool;
 
-	private StepDetectorCalculationTask mStepDetectorCalculationTask;
+	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
 	public interface StepListener {
 		public void onStep();
@@ -63,15 +63,15 @@ public class StepDetector implements SensorEventListener {
 
 		mDataPool = new StepDetectorDataPool();
 
-		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
-		mStepDetectorCalculationTask.start();
+		mStepDetectorCalculationThread = new StepDetectorCalculationThread();
+		mStepDetectorCalculationThread.start();
 	}
 
-	private class StepDetectorCalculationTask extends Thread {
+	private class StepDetectorCalculationThread extends Thread {
 
 		private volatile boolean stopped;
 
-		public StepDetectorCalculationTask() {
+		public StepDetectorCalculationThread() {
 			stopped = false;
 		}
 
@@ -82,7 +82,7 @@ public class StepDetector implements SensorEventListener {
 		@Override
 		public void run() {
 			while (!stopped) {
-				
+
 			}
 		}
 
@@ -106,15 +106,15 @@ public class StepDetector implements SensorEventListener {
 	 * Call this when pause.
 	 */
 	public void close() {
-		mStepDetectorCalculationTask.terminate();
+		mStepDetectorCalculationThread.terminate();
 		Log.v(TAG, "Waiting for StepDetectorCalculationTask to terminate.");
 		try {
-			mStepDetectorCalculationTask.join();
+			mStepDetectorCalculationThread.join();
 		} catch (InterruptedException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
 		Log.v(TAG, "StepDetectorCalculationTask terminated.");
-		mStepDetectorCalculationTask = null;
+		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
 	}
@@ -123,8 +123,8 @@ public class StepDetector implements SensorEventListener {
 	 * Call this when resume.
 	 */
 	public void reload() {
-		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
-		mStepDetectorCalculationTask.start();
+		mStepDetectorCalculationThread = new StepDetectorCalculationThread();
+		mStepDetectorCalculationThread.start();
 		Log.v(TAG, "StepDetectorCalculationTask reloaded.");
 
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
