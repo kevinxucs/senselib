@@ -22,6 +22,9 @@ public class StepDetector implements SensorEventListener {
 
 	private StepDetectorDataPool mDataPool;
 
+	private StepDetectorCalculationTask mStepDetectorCalculationTask;
+	private Thread mStepDetectorCalculationThread;
+
 	protected interface StepListener {
 		public void onStep();
 	}
@@ -59,6 +62,31 @@ public class StepDetector implements SensorEventListener {
 		}
 
 		mDataPool = new StepDetectorDataPool();
+
+		mStepDetectorCalculationTask = new StepDetectorCalculationTask();
+		mStepDetectorCalculationThread = new Thread(mStepDetectorCalculationTask);
+		mStepDetectorCalculationThread.start();
+	}
+
+	private class StepDetectorCalculationTask implements Runnable {
+
+		private volatile boolean stopped;
+
+		public StepDetectorCalculationTask() {
+			stopped = false;
+		}
+
+		public void stop() {
+			stopped = true;
+		}
+
+		@Override
+		public void run() {
+			while (!stopped) {
+				
+			}
+		}
+
 	}
 
 	protected void addListener(StepListener stepListener) {
@@ -78,10 +106,17 @@ public class StepDetector implements SensorEventListener {
 		mStepListeners.clear();
 	}
 
+	/**
+	 * Call this when pause.
+	 */
 	protected void close() {
+		mStepDetectorCalculationTask.stop();
 		mSensorManager.unregisterListener(this);
 	}
 
+	/**
+	 * Call this when resume.
+	 */
 	protected void reload() {
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
