@@ -41,13 +41,13 @@ public class StepDetector implements SensorEventListener {
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
 
 		if (liearAccelSensors.size() == 0) {
-			throw new SensorNotAvailableException("Linear Acceleration sensors not available.");
+			throw new SensorNotAvailableException(Sensor.TYPE_LINEAR_ACCELERATION);
 		} else {
 			mLinearAccelSensor = liearAccelSensors.get(0);
 		}
 
 		if (gravitySensors.size() == 0) {
-			throw new SensorNotAvailableException("Gravity sensors not available.");
+			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
 		} else {
 			mGravitySensor = gravitySensors.get(0);
 		}
@@ -77,6 +77,15 @@ public class StepDetector implements SensorEventListener {
 
 		public void terminate() {
 			stopped = true;
+		}
+
+		public float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
+			double gravityScalar = Math.sqrt(gravity[0] * gravity[0]
+					+ gravity[1] * gravity[1] + gravity[2] * gravity[2]);
+			float dotProduct = linearAccel[0] * gravity[0] + linearAccel[1]
+					* gravity[1] + linearAccel[2] * gravity[2];
+
+			return (float) (dotProduct / gravityScalar);
 		}
 
 		@Override
