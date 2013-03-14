@@ -12,8 +12,8 @@ public class StepDetectorDataPool {
 	private final static int DEFAULT_POOL_SIZE = 500;
 
 	private int mPoolSize;
-	private DataPool mLinearAccelPool;
-	private DataPool mGravityPool;
+	private DataPool<float[]> mLinearAccelPool;
+	private DataPool<float[]> mGravityPool;
 
 	protected StepDetectorDataPool() {
 		this(DEFAULT_POOL_SIZE);
@@ -21,8 +21,8 @@ public class StepDetectorDataPool {
 
 	protected StepDetectorDataPool(int poolSize) {
 		mPoolSize = poolSize;
-		mLinearAccelPool = new DataPool(mPoolSize);
-		mGravityPool = new DataPool(mPoolSize);
+		mLinearAccelPool = new DataPool<float[]>(mPoolSize);
+		mGravityPool = new DataPool<float[]>(mPoolSize);
 	}
 
 	protected DataPool getDataPool(int type) {

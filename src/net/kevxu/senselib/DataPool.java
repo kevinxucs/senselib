@@ -4,21 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DataPool {
+public class DataPool<T> {
 
 	private int mPoolSize;
 
-	private float[][] mPool;
+	private List<T> mPool;
 	private int mStartPos;
 	private int mEndPos;
 	private int mSize;
 
 	public DataPool(int poolSize) {
 		mPoolSize = poolSize;
-		mPool = new float[mPoolSize][];
+		mPool = new ArrayList<T>(poolSize);
 		mStartPos = 0;
 		mEndPos = 0;
 		mSize = 0;
+
+		for (int i = 0; i < poolSize; i++) {
+			mPool.add(null);
+		}
 	}
 
 	public int size() {
@@ -29,32 +33,32 @@ public class DataPool {
 		return mPoolSize;
 	}
 
-	public void append(float[] values) {
+	public void append(T values) {
 		if (mSize < mPoolSize) {
-			mPool[mEndPos] = values;
+			mPool.set(mEndPos, values);
 			mEndPos = (mEndPos + 1) % mPoolSize;
 			mSize++;
 		} else {
 			mStartPos = (mStartPos + 1) % mPoolSize;
-			mPool[mEndPos] = values;
+			mPool.set(mEndPos, values);
 			mEndPos = (mEndPos + 1) % mPoolSize;
 		}
 	}
 
-	public float[] get(int i) {
+	public T get(int i) {
 		if (i < mSize) {
-			return mPool[(mStartPos + i) % mPoolSize];
+			return mPool.get((mStartPos + i) % mPoolSize);
 		} else {
 			throw new IndexOutOfBoundsException("i is larger than DataPool size.");
 		}
 	}
 
-	public List<float[]> getPrevious(int n) {
+	public List<T> getPrevious(int n) {
 		if (n > mSize) {
 			throw new IndexOutOfBoundsException("n is larger than DataPool size.");
 		}
 
-		List<float[]> pd = new ArrayList<float[]>();
+		List<T> pd = new ArrayList<T>();
 		for (int i = 0; i < n; i++) {
 			pd.add(get(mSize - 1 - i));
 		}
@@ -63,28 +67,12 @@ public class DataPool {
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-
-		str.append("[");
-		for (int i = 0; i < mSize; i++) {
-			float[] values = get(i);
-			str.append("[");
-			for (float value : values) {
-				str.append(value);
-				str.append(", ");
-			}
-			str.delete(str.length() - 2, str.length());
-			str.append("], ");
-		}
-		str.delete(str.length() - 2, str.length());
-		str.append("]");
-
-		return str.toString();
+		return mPool.toString();
 	}
 
 	public static void main(String[] args) {
 		Random r = new Random();
-		DataPool pool = new DataPool(5);
+		DataPool<float[]> pool = new DataPool<float[]>(5);
 
 		// Appending data
 		System.out.println("Appending data:");
@@ -94,7 +82,22 @@ public class DataPool {
 				values[j] = (float) r.nextInt(10);
 			}
 			pool.append(values);
-			System.out.println(pool);
+
+			StringBuilder sb = new StringBuilder();
+			// sb.append("[");
+			for (int idx = 0; idx < pool.size(); idx++) {
+				sb.append("[");
+				float[] getValues = pool.get(idx);
+				for (int fidx = 0; fidx < 3; fidx++) {
+					sb.append(getValues[fidx]);
+					sb.append(", ");
+				}
+				sb.delete(sb.length() - 2, sb.length());
+				sb.append("], ");
+			}
+			sb.delete(sb.length() - 2, sb.length());
+			// sb.append("]");
+			System.out.println(sb.toString());
 		}
 		System.out.println();
 
@@ -109,6 +112,7 @@ public class DataPool {
 					sb.append(value[j]).append(", ");
 				}
 				sb.delete(sb.length() - 2, sb.length());
+				sb.append("]");
 				System.out.println(i + ": " + sb.toString());
 			} catch (IndexOutOfBoundsException e) {
 				e.printStackTrace();
