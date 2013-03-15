@@ -27,6 +27,9 @@ public class StepDetector implements SensorEventListener {
 
 	public interface StepListener {
 		public void onStep();
+
+		// Debug purpose method
+		public void onValue(float value);
 	}
 
 	public StepDetector(Context context) throws SensorNotAvailableException {
@@ -91,7 +94,19 @@ public class StepDetector implements SensorEventListener {
 		@Override
 		public void run() {
 			while (!stopped) {
+				if (mDataPool.getSize(Sensor.TYPE_LINEAR_ACCELERATION) > 0
+						&& mDataPool.getSize(Sensor.TYPE_GRAVITY) > 0) {
+					float[] linearAccel = mDataPool.getLatest(Sensor.TYPE_LINEAR_ACCELERATION);
+					float[] gravity = mDataPool.getLatest(Sensor.TYPE_GRAVITY);
 
+					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
+
+					synchronized (this) {
+						for (StepListener listener : mStepListeners) {
+							listener.onValue(accelInGravityDirection);
+						}
+					}
+				}
 			}
 		}
 

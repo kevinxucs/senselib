@@ -60,6 +60,12 @@ public class StepDetectorDataPool {
 		return dataPool.size();
 	}
 
+	// Not synchronized since pool size doesn't expect to change.
+	protected int getPoolSize(int type) {
+		DataPool<float[]> dataPool = getDataPool(type);
+		return dataPool.getPoolSize();
+	}
+
 	protected synchronized float[] get(int type, int i) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.get(i);
@@ -78,6 +84,11 @@ public class StepDetectorDataPool {
 	protected synchronized List<float[]> getListFromBack(int type, int n) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		return dataPool.getListFromBack(n);
+	}
+
+	protected synchronized float[] getLatest(int type) {
+		DataPool<float[]> dataPool = getDataPool(type);
+		return dataPool.getFromBack(0);
 	}
 
 }

@@ -9,13 +9,14 @@ public class Sense {
 	private Context mContext;
 	private LocationService mLocationService;
 	private SensorService mSensorService;
-	private StepDetector mStepDetector;
+
+	// private StepDetector mStepDetector;
 
 	public Sense(Context context) throws SensorNotAvailableException {
 		mContext = context;
 		mLocationService = new LocationService(mContext);
 		mSensorService = new SensorService(mContext);
-		mStepDetector = new StepDetector(mContext);
+		// mStepDetector = new StepDetector(mContext);
 
 	}
 
@@ -23,14 +24,14 @@ public class Sense {
 	 * Call this when pause.
 	 */
 	public void close() {
-		mStepDetector.close();
+		// mStepDetector.close();
 	}
 
 	/**
 	 * Call this when resume.
 	 */
 	public void reload() {
-		mStepDetector.reload();
+		// mStepDetector.reload();
 	}
 
 }
