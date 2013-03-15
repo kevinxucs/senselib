@@ -8,5 +8,6 @@
     <string name="sensor_linear_acceleration">Linear Acceleration Sensor</string>
     <string name="sensor_gravity">Gravity Sensor</string>
     <string name="sensor_unknown">Unknown Sensor</string>
+    <string name="accel_in_gravity_direction">Acceleration in Gravity Direction</string>
 
 </resources>

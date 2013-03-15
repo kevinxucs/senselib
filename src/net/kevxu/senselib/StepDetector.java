@@ -29,6 +29,9 @@ public class StepDetector implements SensorEventListener {
 
 	public interface StepListener {
 		public void onStep();
+
+		// Debug
+		public void onValue(float value);
 	}
 
 	public StepDetector(Context context) throws SensorNotAvailableException {
@@ -91,8 +94,6 @@ public class StepDetector implements SensorEventListener {
 
 			float aigd = (float) (dotProduct / gravityScalar);
 
-			Log.v(TAG, "l2: " + linearAccel[2] + "\tg2: " + gravity[2]);
-
 			return aigd;
 		}
 
@@ -106,8 +107,10 @@ public class StepDetector implements SensorEventListener {
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
+					// Log.v(TAG, "AIGD: " + accelInGravityDirection);
+
 					for (StepListener listener : mStepListeners) {
-						// TODO
+						listener.onValue(accelInGravityDirection);
 					}
 				}
 

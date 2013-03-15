@@ -30,6 +30,8 @@ public class MainActivity extends Activity implements StepListener {
 		try {
 			mSense = new Sense(this);
 			mStepDetector = new StepDetector(this, this);
+
+			mTitle.setText(R.string.accel_in_gravity_direction);
 		} catch (SensorNotAvailableException e) {
 			String sensor;
 			switch (e.getSensorType()) {
@@ -69,6 +71,19 @@ public class MainActivity extends Activity implements StepListener {
 	@Override
 	public void onStep() {
 
+	}
+
+	@Override
+	public void onValue(final float value) {
+		synchronized (this) {
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mContent.setText(String.valueOf(value));
+				}
+			});
+		}
 	}
 
 }
