@@ -1,7 +1,6 @@
 package net.kevxu.senselib;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
@@ -15,7 +14,7 @@ public class StepDetector implements SensorEventListener {
 
 	private static final String TAG = "StepDetector";
 
-	private static final int POOL_SIZE = 50;
+	private static final int POOL_SIZE = 500;
 
 	private Context mContext;
 	private SensorManager mSensorManager;
@@ -92,7 +91,7 @@ public class StepDetector implements SensorEventListener {
 
 			float aigd = (float) (dotProduct / gravityScalar);
 
-			// Log.v(TAG, "l2: " + linearAccel[2] + "\tg2: " + gravity[2]);
+			Log.v(TAG, "l2: " + linearAccel[2] + "\tg2: " + gravity[2]);
 
 			return aigd;
 		}
@@ -174,9 +173,11 @@ public class StepDetector implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		Sensor sensor = event.sensor;
-		mDataPool.addData(sensor.getType(), event.values);
-		Log.v(TAG, mDataPool.toString());
+		synchronized (this) {
+			Sensor sensor = event.sensor;
+			mDataPool.addData(sensor.getType(), event.values);
+			// Log.v(TAG, mDataPool.toString());
+		}
 	}
 
 }

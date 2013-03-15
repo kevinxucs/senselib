@@ -42,7 +42,8 @@ public class StepDetectorDataPool {
 
 	protected synchronized StepDetectorDataPool addData(int type, float[] values) {
 		DataPool<float[]> dataPool = getDataPool(type);
-		dataPool.append(values);
+		float[] copyValues = copyValues(values);
+		dataPool.append(copyValues);
 
 		return this;
 	}
@@ -50,7 +51,8 @@ public class StepDetectorDataPool {
 	protected synchronized StepDetectorDataPool addDataList(int type, List<float[]> valuesList) {
 		DataPool<float[]> dataPool = getDataPool(type);
 		for (float[] values : valuesList) {
-			dataPool.append(values);
+			float[] copyValues = copyValues(values);
+			dataPool.append(copyValues);
 		}
 
 		return this;
