@@ -105,10 +105,8 @@ public class StepDetector implements SensorEventListener {
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
-					synchronized (this) {
-						for (StepListener listener : mStepListeners) {
-							// TODO
-						}
+					for (StepListener listener : mStepListeners) {
+						// TODO
 					}
 				}
 
@@ -175,11 +173,6 @@ public class StepDetector implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		Sensor sensor = event.sensor;
-		// if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-		// Log.v(TAG, "LA: " + Arrays.toString(event.values));
-		// } else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
-		// Log.v(TAG, "GR: " + Arrays.toString(event.values));
-		// }
 		mDataPool.addData(sensor.getType(), event.values);
 	}
 
