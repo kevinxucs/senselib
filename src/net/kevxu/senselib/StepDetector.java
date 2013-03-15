@@ -80,7 +80,7 @@ public class StepDetector implements SensorEventListener {
 
 		public StepDetectorCalculationThread() {
 			stopped = false;
-			interval = 100;
+			interval = 50;
 		}
 
 		public void terminate() {
