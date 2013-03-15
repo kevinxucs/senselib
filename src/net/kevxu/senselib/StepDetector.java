@@ -15,6 +15,8 @@ public class StepDetector implements SensorEventListener {
 
 	private static final String TAG = "StepDetector";
 
+	private static final int POOL_SIZE = 50;
+
 	private Context mContext;
 	private SensorManager mSensorManager;
 	private List<StepListener> mStepListeners;
@@ -62,7 +64,7 @@ public class StepDetector implements SensorEventListener {
 			mStepListeners.add(stepListener);
 		}
 
-		mDataPool = new StepDetectorDataPool();
+		mDataPool = new StepDetectorDataPool(POOL_SIZE);
 
 		mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 		mStepDetectorCalculationThread.start();
@@ -174,6 +176,7 @@ public class StepDetector implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		Sensor sensor = event.sensor;
 		mDataPool.addData(sensor.getType(), event.values);
+		Log.v(TAG, mDataPool.toString());
 	}
 
 }
