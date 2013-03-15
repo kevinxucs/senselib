@@ -25,13 +25,12 @@ public class StepDetectorDataPool {
 		mGravityPool = new DataPool<float[]>(mPoolSize);
 	}
 
-	protected DataPool<float[]> getDataPool(int type) {
-		switch (type) {
-		case Sensor.TYPE_LINEAR_ACCELERATION:
+	protected synchronized DataPool<float[]> getDataPool(int type) {
+		if (type == Sensor.TYPE_LINEAR_ACCELERATION)
 			return mLinearAccelPool;
-		case Sensor.TYPE_GRAVITY:
+		else if (type == Sensor.TYPE_GRAVITY)
 			return mGravityPool;
-		default:
+		else {
 			IllegalArgumentException e = new IllegalArgumentException("No such type "
 					+ type + ".");
 			Log.e(TAG, e.getMessage(), e);
@@ -40,8 +39,7 @@ public class StepDetectorDataPool {
 	}
 
 	protected synchronized StepDetectorDataPool addData(int type, float[] values) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		dataPool.append(values);
+		getDataPool(type).append(values);
 
 		return this;
 	}
@@ -56,39 +54,31 @@ public class StepDetectorDataPool {
 	}
 
 	protected synchronized int getSize(int type) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.size();
+		return getDataPool(type).size();
 	}
 
-	// Not synchronized since pool size doesn't expect to change.
-	protected int getPoolSize(int type) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getPoolSize();
+	protected synchronized int getPoolSize(int type) {
+		return getDataPool(type).getPoolSize();
 	}
 
 	protected synchronized float[] get(int type, int i) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.get(i);
+		return getDataPool(type).get(i);
 	}
 
 	protected synchronized List<float[]> getList(int type, int n) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getList(n);
+		return getDataPool(type).getList(n);
 	}
 
 	protected synchronized float[] getFromBack(int type, int i) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getFromBack(i);
+		return getDataPool(type).getFromBack(i);
 	}
 
 	protected synchronized List<float[]> getListFromBack(int type, int n) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getListFromBack(n);
+		return getDataPool(type).getListFromBack(n);
 	}
 
 	protected synchronized float[] getLatest(int type) {
-		DataPool<float[]> dataPool = getDataPool(type);
-		return dataPool.getFromBack(0);
+		return getDataPool(type).getFromBack(0);
 	}
 
 }
