@@ -1,21 +1,7 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
-/**
- * Data container which stores last n data, n is defined by poolSize. It uses
- * the concept of circular array, but the underlining data container uses
- * ArrayList due to the need of support generic. This data container is NOT
- * thread-safe, use with ABSOLUTE caution.
- * 
- * @author Kaiwen Xu
- * 
- * @param <T>
- *            Type of data to be stored.
- */
 public class FloatDataPool {
 
 	private int mPoolSize;
