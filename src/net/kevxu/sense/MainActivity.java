@@ -68,20 +68,6 @@ public class MainActivity extends Activity implements StepListener {
 
 	@Override
 	public void onStep() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onValue(final float value) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				mContent.setText(String.valueOf(value));
-
-			}
-		});
 
 	}
 

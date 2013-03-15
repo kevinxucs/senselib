@@ -27,9 +27,6 @@ public class StepDetector implements SensorEventListener {
 
 	public interface StepListener {
 		public void onStep();
-
-		// Debug purpose method
-		public void onValue(float value);
 	}
 
 	public StepDetector(Context context) throws SensorNotAvailableException {
@@ -74,8 +71,11 @@ public class StepDetector implements SensorEventListener {
 
 		private volatile boolean stopped;
 
+		private long interval;
+
 		public StepDetectorCalculationThread() {
 			stopped = false;
+			interval = 50;
 		}
 
 		public void terminate() {
@@ -83,12 +83,15 @@ public class StepDetector implements SensorEventListener {
 		}
 
 		public float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
-			float gravityScalar = (float) Math.sqrt(gravity[0] * gravity[0]
-					+ gravity[1] * gravity[1] + gravity[2] * gravity[2]);
+			float gravityScalar = SensorManager.GRAVITY_EARTH;
 			float dotProduct = linearAccel[0] * gravity[0] + linearAccel[1]
 					* gravity[1] + linearAccel[2] * gravity[2];
 
-			return dotProduct / gravityScalar;
+			float aigd = (float) (dotProduct / gravityScalar);
+
+			Log.v(TAG, "DP: " + dotProduct + "\tAIGD: " + aigd);
+
+			return aigd;
 		}
 
 		@Override
@@ -103,9 +106,15 @@ public class StepDetector implements SensorEventListener {
 
 					synchronized (this) {
 						for (StepListener listener : mStepListeners) {
-							listener.onValue(accelInGravityDirection);
+							// TODO
 						}
 					}
+				}
+
+				try {
+					Thread.sleep(interval);
+				} catch (InterruptedException e) {
+					Log.w(TAG, e.getMessage(), e);
 				}
 			}
 		}
@@ -131,13 +140,13 @@ public class StepDetector implements SensorEventListener {
 	 */
 	public void close() {
 		mStepDetectorCalculationThread.terminate();
-		Log.v(TAG, "Waiting for StepDetectorCalculationThread to terminate.");
+		Log.i(TAG, "Waiting for StepDetectorCalculationThread to terminate.");
 		try {
 			mStepDetectorCalculationThread.join();
 		} catch (InterruptedException e) {
-			Log.e(TAG, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 		}
-		Log.v(TAG, "StepDetectorCalculationThread terminated.");
+		Log.i(TAG, "StepDetectorCalculationThread terminated.");
 		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
@@ -150,7 +159,7 @@ public class StepDetector implements SensorEventListener {
 		if (mStepDetectorCalculationThread == null) {
 			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
-			Log.v(TAG, "StepDetectorCalculationThread reloaded.");
+			Log.i(TAG, "StepDetectorCalculationThread reloaded.");
 		}
 
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
