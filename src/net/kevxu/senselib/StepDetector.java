@@ -178,8 +178,8 @@ public class StepDetector implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		synchronized (this) {
 			Sensor sensor = event.sensor;
-			mDataPool.addData(sensor.getType(), event.values);
-			// Log.v(TAG, mDataPool.toString());
+//			mDataPool.addData(sensor.getType(), event.values);
+			
 		}
 	}
 
