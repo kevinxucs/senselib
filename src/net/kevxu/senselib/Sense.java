@@ -11,8 +11,6 @@ public class Sense {
 	private LocationService mLocationService;
 	private OrientationService mOrientationService;
 
-	// private StepDetector mStepDetector;
-
 	public interface SenseListener {
 		public void onLocationChanged(Location location);
 	}
@@ -21,7 +19,6 @@ public class Sense {
 		mContext = context;
 		mLocationService = new LocationService(mContext);
 		mOrientationService = new OrientationService(mContext);
-		// mStepDetector = new StepDetector(mContext);
 
 	}
 
@@ -29,14 +26,14 @@ public class Sense {
 	 * Call this when pause.
 	 */
 	public void stop() {
-		// mStepDetector.stop();
+
 	}
 
 	/**
 	 * Call this when resume.
 	 */
 	public void start() {
-		// mStepDetector.start();
+
 	}
 
 }
