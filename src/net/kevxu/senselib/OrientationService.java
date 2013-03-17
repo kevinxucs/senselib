@@ -33,6 +33,38 @@ public class OrientationService {
 		}
 	}
 
+	/**
+	 * Call this when resume.
+	 */
+	protected void start() {
+
+	}
+
+	/**
+	 * Call this when pause.
+	 */
+	protected void stop() {
+
+	}
+
+	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
+
+		protected OrientationSensorThread() {
+			super(DEFAULT_INTERVAL);
+		}
+
+		protected OrientationSensorThread(long interval) {
+			super(interval);
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
 	protected void addListener(SenseListener senseListener) {
 		if (senseListener != null) {
 			mSenseListeners.add(senseListener);
@@ -43,29 +75,6 @@ public class OrientationService {
 
 	protected void removeListeners() {
 		mSenseListeners.clear();
-	}
-
-	private final class OrientationSensorThread extends Thread {
-		
-		private volatile boolean terminated;
-		
-		
-		
-		
-	}
-
-	/**
-	 * Call this when pause.
-	 */
-	protected void stop() {
-
-	}
-
-	/**
-	 * Call this when resume.
-	 */
-	protected void start() {
-
 	}
 
 }
