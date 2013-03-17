@@ -99,17 +99,23 @@ public class StepDetector implements SensorEventListener {
 
 	private final class StepDetectorCalculationThread extends Thread {
 
+		private static final int DEFAULT_INTERVAL = 50;
+
 		private volatile boolean terminated;
 
 		private long interval;
 
 		public StepDetectorCalculationThread() {
-			terminated = false;
-			interval = 50;
+			this(DEFAULT_INTERVAL);
+		}
+
+		public StepDetectorCalculationThread(int interval) {
+			this.terminated = false;
+			this.interval = interval;
 		}
 
 		public void terminate() {
-			terminated = true;
+			this.terminated = true;
 		}
 
 		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
