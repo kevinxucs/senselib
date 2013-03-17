@@ -57,9 +57,6 @@ public class StepDetector implements SensorEventListener {
 			mGravitySensor = gravitySensors.get(0);
 		}
 
-		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
-
 		mStepListeners = new ArrayList<StepListener>();
 
 		if (stepListener != null) {
@@ -67,9 +64,37 @@ public class StepDetector implements SensorEventListener {
 		}
 
 		mDataPool = new StepDetectorDataPool(POOL_SIZE);
+	}
 
-		mStepDetectorCalculationThread = new StepDetectorCalculationThread();
-		mStepDetectorCalculationThread.start();
+	/**
+	 * Call this when resume.
+	 */
+	public void start() {
+		if (mStepDetectorCalculationThread == null) {
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
+			mStepDetectorCalculationThread.start();
+			Log.i(TAG, "StepDetectorCalculationThread reloaded.");
+		}
+
+		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
+		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
+	}
+
+	/**
+	 * Call this when pause.
+	 */
+	public void stop() {
+		mStepDetectorCalculationThread.terminate();
+		Log.i(TAG, "Waiting for StepDetectorCalculationThread to terminate.");
+		try {
+			mStepDetectorCalculationThread.join();
+		} catch (InterruptedException e) {
+			Log.w(TAG, e.getMessage(), e);
+		}
+		Log.i(TAG, "StepDetectorCalculationThread terminated.");
+		mStepDetectorCalculationThread = null;
+
+		mSensorManager.unregisterListener(this);
 	}
 
 	private class StepDetectorCalculationThread extends Thread {
@@ -142,37 +167,6 @@ public class StepDetector implements SensorEventListener {
 		mStepListeners.clear();
 	}
 
-	/**
-	 * Call this when pause.
-	 */
-	public void close() {
-		mStepDetectorCalculationThread.terminate();
-		Log.i(TAG, "Waiting for StepDetectorCalculationThread to terminate.");
-		try {
-			mStepDetectorCalculationThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
-		}
-		Log.i(TAG, "StepDetectorCalculationThread terminated.");
-		mStepDetectorCalculationThread = null;
-
-		mSensorManager.unregisterListener(this);
-	}
-
-	/**
-	 * Call this when resume.
-	 */
-	public void reload() {
-		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
-			mStepDetectorCalculationThread.start();
-			Log.i(TAG, "StepDetectorCalculationThread reloaded.");
-		}
-
-		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
-	}
-
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// Not implemented
@@ -183,7 +177,6 @@ public class StepDetector implements SensorEventListener {
 		synchronized (this) {
 			Sensor sensor = event.sensor;
 			mDataPool.addData(sensor.getType(), event.values);
-			// Log.v(TAG, mDataPool.toString());
 		}
 	}
 

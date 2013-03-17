@@ -48,14 +48,14 @@ public class LocationService implements LocationListener {
 	/**
 	 * Call this when pause.
 	 */
-	protected void close() {
+	protected void stop() {
 
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	protected void reload() {
+	protected void start() {
 
 	}
 

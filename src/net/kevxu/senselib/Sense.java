@@ -28,15 +28,15 @@ public class Sense {
 	/**
 	 * Call this when pause.
 	 */
-	public void close() {
-		// mStepDetector.close();
+	public void stop() {
+		// mStepDetector.stop();
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	public void reload() {
-		// mStepDetector.reload();
+	public void start() {
+		// mStepDetector.start();
 	}
 
 }

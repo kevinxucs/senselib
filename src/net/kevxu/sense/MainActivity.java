@@ -53,19 +53,19 @@ public class MainActivity extends Activity implements StepListener {
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
-
-		mSense.close();
-		mStepDetector.close();
-	}
-
-	@Override
 	protected void onResume() {
 		super.onResume();
 
-		mSense.reload();
-		mStepDetector.reload();
+		mSense.start();
+		mStepDetector.start();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		mSense.stop();
+		mStepDetector.stop();
 	}
 
 	@Override
