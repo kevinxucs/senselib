@@ -45,6 +45,10 @@ public class OrientationService {
 			mOrientationSensorThread.start();
 			Log.i(TAG, "OrientationSensorThread started.");
 		}
+		
+		if (mSensorManager == null) {
+			mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+		}
 	}
 
 	/**

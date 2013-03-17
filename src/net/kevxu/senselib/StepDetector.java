@@ -76,6 +76,10 @@ public class StepDetector implements SensorEventListener {
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}
 
+		if (mSensorManager == null) {
+			mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+		}
+
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 	}
