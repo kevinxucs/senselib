@@ -10,13 +10,22 @@ public class SensorService {
 	private Context mContext;
 	private SensorManager mSensorManager;
 
-	protected interface SensorServiceListener {
-
-	}
-
 	protected SensorService(Context context) {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+	}
+
+	/**
+	 * Call this when pause.
+	 */
+	protected void close() {
+
+	}
+
+	/**
+	 * Call this when resume.
+	 */
+	protected void reload() {
 
 	}
 

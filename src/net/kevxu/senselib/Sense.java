@@ -1,6 +1,7 @@
 package net.kevxu.senselib;
 
 import android.content.Context;
+import android.location.Location;
 
 public class Sense {
 
@@ -11,6 +12,10 @@ public class Sense {
 	private SensorService mSensorService;
 
 	// private StepDetector mStepDetector;
+
+	public interface SenseListener {
+		public void onLocationChanged(Location location);
+	}
 
 	public Sense(Context context) throws SensorNotAvailableException {
 		mContext = context;
