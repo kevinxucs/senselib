@@ -5,9 +5,6 @@ import java.util.List;
 
 import net.kevxu.senselib.Sense.SenseListener;
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
