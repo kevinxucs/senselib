@@ -10,7 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class SensorService {
+public class OrientationService {
 
 	private static final String TAG = "SensorService";
 
@@ -18,11 +18,11 @@ public class SensorService {
 	private SensorManager mSensorManager;
 	private List<SenseListener> mSenseListeners;
 
-	protected SensorService(Context context) {
+	protected OrientationService(Context context) {
 		this(context, null);
 	}
 
-	protected SensorService(Context context, SenseListener senseListener) {
+	protected OrientationService(Context context, SenseListener senseListener) {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 

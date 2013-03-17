@@ -9,7 +9,7 @@ public class Sense {
 
 	private Context mContext;
 	private LocationService mLocationService;
-	private SensorService mSensorService;
+	private OrientationService mOrientationService;
 
 	// private StepDetector mStepDetector;
 
@@ -20,7 +20,7 @@ public class Sense {
 	public Sense(Context context) throws SensorNotAvailableException {
 		mContext = context;
 		mLocationService = new LocationService(mContext);
-		mSensorService = new SensorService(mContext);
+		mOrientationService = new OrientationService(mContext);
 		// mStepDetector = new StepDetector(mContext);
 
 	}
