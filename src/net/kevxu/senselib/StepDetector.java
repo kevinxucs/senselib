@@ -97,22 +97,22 @@ public class StepDetector implements SensorEventListener {
 		mSensorManager.unregisterListener(this);
 	}
 
-	private class StepDetectorCalculationThread extends Thread {
+	private final class StepDetectorCalculationThread extends Thread {
 
-		private volatile boolean stopped;
+		private volatile boolean terminated;
 
 		private long interval;
 
 		public StepDetectorCalculationThread() {
-			stopped = false;
+			terminated = false;
 			interval = 50;
 		}
 
 		public void terminate() {
-			stopped = true;
+			terminated = true;
 		}
 
-		public float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
+		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
 			float gravityScalar = SensorManager.GRAVITY_EARTH;
 			float dotProduct = linearAccel[0] * gravity[0] + linearAccel[1]
 					* gravity[1] + linearAccel[2] * gravity[2];
@@ -124,7 +124,7 @@ public class StepDetector implements SensorEventListener {
 
 		@Override
 		public void run() {
-			while (!stopped) {
+			while (!terminated) {
 				if (mDataPool.getSize(Sensor.TYPE_LINEAR_ACCELERATION) > 0
 						&& mDataPool.getSize(Sensor.TYPE_GRAVITY) > 0) {
 					float[] linearAccel = mDataPool.getLatest(Sensor.TYPE_LINEAR_ACCELERATION);

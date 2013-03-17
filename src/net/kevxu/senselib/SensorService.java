@@ -10,7 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class SensorService implements SensorEventListener {
+public class SensorService {
 
 	private static final String TAG = "SensorService";
 
@@ -45,6 +45,15 @@ public class SensorService implements SensorEventListener {
 		mSenseListeners.clear();
 	}
 
+	private final class OrientationSensorThread extends Thread {
+		
+		private volatile boolean terminated;
+		
+		
+		
+		
+	}
+
 	/**
 	 * Call this when pause.
 	 */
@@ -56,18 +65,6 @@ public class SensorService implements SensorEventListener {
 	 * Call this when resume.
 	 */
 	protected void start() {
-
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
 
 	}
 
