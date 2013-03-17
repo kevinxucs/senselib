@@ -9,6 +9,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 public class OrientationService {
 
@@ -17,6 +18,8 @@ public class OrientationService {
 	private Context mContext;
 	private SensorManager mSensorManager;
 	private List<SenseListener> mSenseListeners;
+
+	private OrientationSensorThread mOrientationSensorThread;
 
 	protected OrientationService(Context context) {
 		this(context, null);
@@ -37,14 +40,26 @@ public class OrientationService {
 	 * Call this when resume.
 	 */
 	protected void start() {
-
+		if (mOrientationSensorThread == null) {
+			mOrientationSensorThread = new OrientationSensorThread();
+			mOrientationSensorThread.start();
+			Log.i(TAG, "OrientationSensorThread started.");
+		}
 	}
 
 	/**
 	 * Call this when pause.
 	 */
 	protected void stop() {
-
+		mOrientationSensorThread.terminate();
+		Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
+		try {
+			mOrientationSensorThread.join();
+		} catch (InterruptedException e) {
+			Log.e(TAG, e.getMessage(), e);
+		}
+		Log.i(TAG, "OrientationSensorThread stopped.");
+		mOrientationSensorThread = null;
 	}
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {

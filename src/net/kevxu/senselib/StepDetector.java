@@ -89,7 +89,7 @@ public class StepDetector implements SensorEventListener {
 		try {
 			mStepDetectorCalculationThread.join();
 		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+			Log.e(TAG, e.getMessage(), e);
 		}
 		Log.i(TAG, "StepDetectorCalculationThread stopped.");
 		mStepDetectorCalculationThread = null;
