@@ -112,7 +112,9 @@ public class StepDetector implements SensorEventListener {
 		}
 
 		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
-			float gravityScalar = SensorManager.GRAVITY_EARTH;
+			// float gravityScalar = SensorManager.GRAVITY_EARTH;
+			float gravityScalar = (float) Math.sqrt(gravity[0] * gravity[0]
+					+ gravity[1] * gravity[1] + gravity[2] * gravity[2]);
 			float dotProduct = linearAccel[0] * gravity[0] + linearAccel[1]
 					* gravity[1] + linearAccel[2] * gravity[2];
 

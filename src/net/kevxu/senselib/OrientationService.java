@@ -75,7 +75,14 @@ public class OrientationService {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			while (!isTerminated()) {
+
+				try {
+					Thread.sleep(getInterval());
+				} catch (InterruptedException e) {
+					Log.w(TAG, e.getMessage(), e);
+				}
+			}
 
 		}
 

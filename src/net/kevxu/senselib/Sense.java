@@ -26,14 +26,16 @@ public class Sense {
 	 * Call this when pause.
 	 */
 	public void stop() {
-
+		mLocationService.stop();
+		mOrientationService.stop();
 	}
 
 	/**
 	 * Call this when resume.
 	 */
 	public void start() {
-
+		mLocationService.start();
+		mOrientationService.start();
 	}
 
 }
