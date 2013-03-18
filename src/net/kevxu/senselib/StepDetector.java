@@ -28,10 +28,12 @@ public class StepDetector implements SensorEventListener {
 	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
 	public interface StepListener {
+
 		public void onStep();
 
-		// Debug
+		// Debug purpose
 		public void onValue(float value);
+
 	}
 
 	public StepDetector(Context context) throws SensorNotAvailableException {
@@ -48,12 +50,16 @@ public class StepDetector implements SensorEventListener {
 		if (liearAccelSensors.size() == 0) {
 			throw new SensorNotAvailableException(Sensor.TYPE_LINEAR_ACCELERATION);
 		} else {
+			// Assume the first in the list is the default sensor
+			// Assumption may not be true though
 			mLinearAccelSensor = liearAccelSensors.get(0);
 		}
 
 		if (gravitySensors.size() == 0) {
 			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
 		} else {
+			// Assume the first in the list is the default sensor
+			// Assumption may not be true though
 			mGravitySensor = gravitySensors.get(0);
 		}
 
@@ -81,7 +87,10 @@ public class StepDetector implements SensorEventListener {
 		}
 
 		mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
+		Log.i(TAG, "Linear acceleration sensor registered.");
+
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
+		Log.i(TAG, "Gravity sesnor registered.");
 	}
 
 	/**
@@ -99,6 +108,7 @@ public class StepDetector implements SensorEventListener {
 		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
+		Log.i(TAG, "Sensors unregistered.");
 	}
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {

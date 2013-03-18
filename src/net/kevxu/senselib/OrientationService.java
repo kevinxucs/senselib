@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-public class OrientationService {
+public class OrientationService implements SensorEventListener {
 
 	private static final String TAG = "SensorService";
 
@@ -15,20 +18,45 @@ public class OrientationService {
 	private SensorManager mSensorManager;
 	private List<OrientationServiceListener> mOrientationServiceListeners;
 
+	private Sensor mGravitySensor;
+	private Sensor mMagneticFieldSensor;
+
 	private OrientationSensorThread mOrientationSensorThread;
 
 	public interface OrientationServiceListener {
+
 		public void onOrientationChanged(float[] R, float[] values);
+
+		public void onRotationMatrixChanged(float[] R, float[] I);
 
 	}
 
-	public OrientationService(Context context) {
+	public OrientationService(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	public OrientationService(Context context, OrientationServiceListener orientationServiceListener) {
+	public OrientationService(Context context, OrientationServiceListener orientationServiceListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+
+		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+		List<Sensor> magneticFieldSensor = mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+
+		if (gravitySensors.size() == 0) {
+			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
+		} else {
+			// Assume the first in the list is the default sensor
+			// Assumption may not be true though
+			mGravitySensor = gravitySensors.get(0);
+		}
+
+		if (magneticFieldSensor.size() == 0) {
+			throw new SensorNotAvailableException(Sensor.TYPE_MAGNETIC_FIELD);
+		} else {
+			// Assume the first in the list is the default sensor
+			// Assumption may not be true though
+			mMagneticFieldSensor = magneticFieldSensor.get(0);
+		}
 
 		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();
 
@@ -50,6 +78,12 @@ public class OrientationService {
 		if (mSensorManager == null) {
 			mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 		}
+
+		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
+		Log.i(TAG, "Gravity sensor registered.");
+
+		mSensorManager.registerListener(this, mMagneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
+		Log.i(TAG, "Magnetic field sensor registered.");
 	}
 
 	/**
@@ -65,12 +99,17 @@ public class OrientationService {
 		}
 		Log.i(TAG, "OrientationSensorThread stopped.");
 		mOrientationSensorThread = null;
+
+		mSensorManager.unregisterListener(this);
+		Log.i(TAG, "Sensors unregistered.");
 	}
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
 		private float[] R;
-		private float[] orientation;
+		private float[] I;
+		private float[] gravity;
+		private float[] geomagnetic;
 
 		protected OrientationSensorThread() {
 			this(DEFAULT_INTERVAL);
@@ -79,14 +118,48 @@ public class OrientationService {
 		protected OrientationSensorThread(long interval) {
 			super(interval);
 
+			I = new float[9];
 			R = new float[9];
-			orientation = new float[3];
+		}
+
+		public synchronized void pushGravity(float[] gravity) {
+			if (this.gravity == null) {
+				this.gravity = new float[3];
+			}
+
+			for (int i = 0; i < 3; i++) {
+				this.gravity[i] = gravity[i];
+			}
+		}
+
+		public synchronized void pushGeomagnetic(float[] geomagnetic) {
+			if (this.geomagnetic == null) {
+				this.geomagnetic = new float[3];
+			}
+
+			for (int i = 0; i < 3; i++) {
+				this.geomagnetic[i] = geomagnetic[i];
+			}
+		}
+
+		public synchronized float[] getGravity() {
+			return this.gravity;
+		}
+
+		public synchronized float[] getGeomagnetic() {
+			return this.geomagnetic;
 		}
 
 		@Override
 		public void run() {
 			while (!isTerminated()) {
-				mSensorManager.getOrientation(R, orientation);
+				if (getGravity() != null && getGeomagnetic() != null) {
+					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
+				}
+
+				for (OrientationServiceListener orientationServiceListener : mOrientationServiceListeners) {
+					orientationServiceListener.onRotationMatrixChanged(R, I);
+				}
 
 				try {
 					Thread.sleep(getInterval());
@@ -109,5 +182,23 @@ public class OrientationService {
 
 	public void removeListeners() {
 		mOrientationServiceListeners.clear();
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		synchronized (this) {
+			Sensor sensor = event.sensor;
+			int type = sensor.getType();
+			if (type == Sensor.TYPE_GRAVITY) {
+				mOrientationSensorThread.pushGravity(event.values);
+			} else if (type == Sensor.TYPE_MAGNETIC_FIELD) {
+				mOrientationSensorThread.pushGeomagnetic(event.values);
+			}
+		}
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// Not implemented
 	}
 }
