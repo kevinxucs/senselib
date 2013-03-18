@@ -3,7 +3,6 @@ package net.kevxu.senselib;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.kevxu.senselib.Sense.SenseListener;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,47 +15,51 @@ public class LocationService implements LocationListener {
 
 	private Context mContext;
 	private LocationManager mLocationManager;
-	private List<SenseListener> mSenseListeners;
+	private List<LocationServiceListener> mLocationServiceListeners;
 
-	protected LocationService(Context context) {
+	public interface LocationServiceListener {
+
+	}
+
+	public LocationService(Context context) {
 		this(context, null);
 	}
 
-	protected LocationService(Context context, SenseListener senseListener) {
+	public LocationService(Context context, LocationServiceListener locationServiceListener) {
 		mContext = context;
 		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
-		mSenseListeners = new ArrayList<SenseListener>();
+		mLocationServiceListeners = new ArrayList<LocationServiceListener>();
 
-		if (senseListener != null) {
-			mSenseListeners.add(senseListener);
+		if (locationServiceListener != null) {
+			mLocationServiceListeners.add(locationServiceListener);
 		}
-	}
-
-	protected void addListener(SenseListener senseListener) {
-		if (senseListener != null) {
-			mSenseListeners.add(senseListener);
-		} else {
-			throw new NullPointerException("SenseListener is null.");
-		}
-	}
-
-	protected void removeListeners() {
-		mSenseListeners.clear();
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	protected void stop() {
+	public void stop() {
 
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	protected void start() {
+	public void start() {
 
+	}
+
+	public void addListener(LocationServiceListener locationServiceListener) {
+		if (locationServiceListener != null) {
+			mLocationServiceListeners.add(locationServiceListener);
+		} else {
+			throw new NullPointerException("LocationServiceListener is null.");
+		}
+	}
+
+	public void removeListeners() {
+		mLocationServiceListeners.clear();
 	}
 
 	@Override

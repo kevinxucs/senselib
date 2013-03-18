@@ -104,7 +104,7 @@ public class StepDetector implements SensorEventListener {
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
 		protected StepDetectorCalculationThread() {
-			super(DEFAULT_INTERVAL);
+			this(DEFAULT_INTERVAL);
 		}
 
 		protected StepDetectorCalculationThread(long interval) {

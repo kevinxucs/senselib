@@ -3,7 +3,6 @@ package net.kevxu.senselib;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.kevxu.senselib.Sense.SenseListener;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.util.Log;
@@ -14,29 +13,34 @@ public class OrientationService {
 
 	private Context mContext;
 	private SensorManager mSensorManager;
-	private List<SenseListener> mSenseListeners;
+	private List<OrientationServiceListener> mOrientationServiceListeners;
 
 	private OrientationSensorThread mOrientationSensorThread;
 
-	protected OrientationService(Context context) {
+	public interface OrientationServiceListener {
+		public void onOrientationChanged(float[] R, float[] values);
+
+	}
+
+	public OrientationService(Context context) {
 		this(context, null);
 	}
 
-	protected OrientationService(Context context, SenseListener senseListener) {
+	public OrientationService(Context context, OrientationServiceListener orientationServiceListener) {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
-		mSenseListeners = new ArrayList<SenseListener>();
+		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();
 
-		if (senseListener != null) {
-			mSenseListeners.add(senseListener);
+		if (orientationServiceListener != null) {
+			mOrientationServiceListeners.add(orientationServiceListener);
 		}
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	protected void start() {
+	public void start() {
 		if (mOrientationSensorThread == null) {
 			mOrientationSensorThread = new OrientationSensorThread();
 			mOrientationSensorThread.start();
@@ -51,7 +55,7 @@ public class OrientationService {
 	/**
 	 * Call this when pause.
 	 */
-	protected void stop() {
+	public void stop() {
 		mOrientationSensorThread.terminate();
 		Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
 		try {
@@ -65,17 +69,24 @@ public class OrientationService {
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
+		private float[] R;
+		private float[] orientation;
+
 		protected OrientationSensorThread() {
-			super(DEFAULT_INTERVAL);
+			this(DEFAULT_INTERVAL);
 		}
 
 		protected OrientationSensorThread(long interval) {
 			super(interval);
+
+			R = new float[9];
+			orientation = new float[3];
 		}
 
 		@Override
 		public void run() {
 			while (!isTerminated()) {
+				mSensorManager.getOrientation(R, orientation);
 
 				try {
 					Thread.sleep(getInterval());
@@ -88,16 +99,15 @@ public class OrientationService {
 
 	}
 
-	protected void addListener(SenseListener senseListener) {
-		if (senseListener != null) {
-			mSenseListeners.add(senseListener);
+	public void addListener(OrientationServiceListener orientationServiceListener) {
+		if (orientationServiceListener != null) {
+			mOrientationServiceListeners.add(orientationServiceListener);
 		} else {
-			throw new NullPointerException("SenseListener is null.");
+			throw new NullPointerException("OrientationServiceListener is null.");
 		}
 	}
 
-	protected void removeListeners() {
-		mSenseListeners.clear();
+	public void removeListeners() {
+		mOrientationServiceListeners.clear();
 	}
-
 }
