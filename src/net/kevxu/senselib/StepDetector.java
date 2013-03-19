@@ -107,8 +107,12 @@ public class StepDetector implements SensorEventListener {
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
+		private static final int DEFAULT_POOL_SIZE = 500;
+
 		private float[] linearAccel;
 		private float[] gravity;
+
+		private FloatDataPool mDataPool;
 
 		protected StepDetectorCalculationThread() {
 			this(DEFAULT_INTERVAL);
@@ -116,6 +120,8 @@ public class StepDetector implements SensorEventListener {
 
 		protected StepDetectorCalculationThread(long interval) {
 			super(interval);
+
+			this.mDataPool = new FloatDataPool(DEFAULT_POOL_SIZE);
 		}
 
 		public synchronized void pushGravity(float[] values) {
@@ -162,6 +168,8 @@ public class StepDetector implements SensorEventListener {
 					float[] gravity = getGravity();
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
+
+					mDataPool.append(accelInGravityDirection);
 
 					for (StepListener listener : mStepListeners) {
 						listener.onValue(accelInGravityDirection);
