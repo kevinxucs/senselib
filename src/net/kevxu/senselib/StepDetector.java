@@ -27,16 +27,13 @@ public class StepDetector implements SensorEventListener {
 
 		public void onStep();
 
-		// Debug purpose
-		public void onValue(float value);
-
 	}
 
-	public StepDetector(Context context) throws SensorNotAvailableException {
+	protected StepDetector(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	public StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
+	protected StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -69,9 +66,9 @@ public class StepDetector implements SensorEventListener {
 	/**
 	 * Call this when resume.
 	 */
-	public void start() {
+	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread(100);
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}
@@ -90,7 +87,7 @@ public class StepDetector implements SensorEventListener {
 	/**
 	 * Call this when pause.
 	 */
-	public void stop() {
+	protected void stop() {
 		mStepDetectorCalculationThread.terminate();
 		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
 		try {
@@ -107,7 +104,6 @@ public class StepDetector implements SensorEventListener {
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
-		private static final int DEFAULT_POOL_SIZE = 500;
 		private static final float DEFAULT_LIMIT = 0.9F;
 
 		private final float limit;
@@ -117,8 +113,6 @@ public class StepDetector implements SensorEventListener {
 
 		private boolean readyForStep;
 		private float previousForReadyValue;
-
-		// private FloatDataPool mDataPool;
 
 		public StepDetectorCalculationThread() {
 			this(DEFAULT_INTERVAL, DEFAULT_LIMIT);
@@ -131,7 +125,6 @@ public class StepDetector implements SensorEventListener {
 		public StepDetectorCalculationThread(long interval, float limit) {
 			super(interval);
 
-			// this.mDataPool = new FloatDataPool(DEFAULT_POOL_SIZE);
 			this.limit = limit;
 
 			this.readyForStep = false;
@@ -184,8 +177,6 @@ public class StepDetector implements SensorEventListener {
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
-					// mDataPool.append(accelInGravityDirection);
-
 					if (!readyForStep) {
 						if (Math.abs(accelInGravityDirection) > limit) {
 							previousForReadyValue = accelInGravityDirection;
@@ -203,8 +194,6 @@ public class StepDetector implements SensorEventListener {
 						if (step) {
 							listener.onStep();
 						}
-
-						listener.onValue(accelInGravityDirection);
 					}
 				}
 
@@ -218,7 +207,7 @@ public class StepDetector implements SensorEventListener {
 
 	}
 
-	public void addListener(StepListener stepListener) {
+	protected void addListener(StepListener stepListener) {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
 		} else {
@@ -226,13 +215,13 @@ public class StepDetector implements SensorEventListener {
 		}
 	}
 
-	public void addListeners(List<StepListener> stepListeners) {
+	protected void addListeners(List<StepListener> stepListeners) {
 		if (stepListeners.size() > 0) {
 			mStepListeners.addAll(stepListeners);
 		}
 	}
 
-	public void removeListeners() {
+	protected void removeListeners() {
 		mStepListeners.clear();
 	}
 
