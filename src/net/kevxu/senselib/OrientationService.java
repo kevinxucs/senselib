@@ -108,9 +108,7 @@ public class OrientationService implements SensorEventListener {
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
 		private float[] R;
-		private float[] pR;
 		private float[] I;
-		private float[] pI;
 		private float[] gravity;
 		private float[] geomagnetic;
 
@@ -122,9 +120,7 @@ public class OrientationService implements SensorEventListener {
 			super(interval);
 
 			R = new float[9];
-			pR = new float[9];
 			I = new float[9];
-			pI = new float[9];
 		}
 
 		public synchronized void pushGravity(float[] gravity) {
@@ -155,16 +151,14 @@ public class OrientationService implements SensorEventListener {
 		public void run() {
 			while (!isTerminated()) {
 				if (getGravity() != null && getGeomagnetic() != null) {
-					if (R != null && I != null) {
-						System.arraycopy(R, 0, pR, 0, 9);
-						System.arraycopy(I, 0, pI, 0, 9);
-					}
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
 				}
 
 				for (OrientationServiceListener orientationServiceListener : mOrientationServiceListeners) {
-					if (!Arrays.equals(pR, R) && !Arrays.equals(pI, I)) {
-						orientationServiceListener.onRotationMatrixChanged(R, I);
+					orientationServiceListener.onRotationMatrixChanged(R, I);
+
+					if (getGeomagnetic() != null) {
+						orientationServiceListener.onMagneticFieldChanged(getGeomagnetic());
 					}
 				}
 
