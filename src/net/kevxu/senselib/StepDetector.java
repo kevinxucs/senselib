@@ -113,12 +113,39 @@ public class StepDetector implements SensorEventListener {
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
+		private float[] linearAccel;
+		private float[] gravity;
+
 		protected StepDetectorCalculationThread() {
 			this(DEFAULT_INTERVAL);
 		}
 
 		protected StepDetectorCalculationThread(long interval) {
 			super(interval);
+		}
+
+		public synchronized void pushGravity(float[] values) {
+			if (gravity == null) {
+				gravity = new float[3];
+			}
+
+			System.arraycopy(values, 0, gravity, 0, 3);
+		}
+
+		public synchronized void pushLinearAccel(float[] values) {
+			if (linearAccel == null) {
+				linearAccel = new float[3];
+			}
+
+			System.arraycopy(values, 0, linearAccel, 0, 3);
+		}
+
+		public synchronized float[] getGravity() {
+			return gravity;
+		}
+
+		public synchronized float[] getLinearAccel() {
+			return linearAccel;
 		}
 
 		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
@@ -142,8 +169,6 @@ public class StepDetector implements SensorEventListener {
 					float[] gravity = mDataPool.getLatest(Sensor.TYPE_GRAVITY);
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
-
-					// Log.v(TAG, "AIGD: " + accelInGravityDirection);
 
 					for (StepListener listener : mStepListeners) {
 						listener.onValue(accelInGravityDirection);
@@ -187,7 +212,11 @@ public class StepDetector implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		synchronized (this) {
 			Sensor sensor = event.sensor;
-			mDataPool.addData(sensor.getType(), event.values);
+			if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+				mStepDetectorCalculationThread.pushLinearAccel(event.values);
+			} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
+				mStepDetectorCalculationThread.pushGravity(event.values);
+			}
 		}
 	}
 

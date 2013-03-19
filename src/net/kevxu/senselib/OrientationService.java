@@ -123,20 +123,20 @@ public class OrientationService implements SensorEventListener {
 			I = new float[9];
 		}
 
-		public synchronized void pushGravity(float[] gravity) {
-			if (this.gravity == null) {
-				this.gravity = new float[3];
+		public synchronized void pushGravity(float[] values) {
+			if (gravity == null) {
+				gravity = new float[3];
 			}
 
-			System.arraycopy(gravity, 0, this.gravity, 0, 3);
+			System.arraycopy(values, 0, gravity, 0, 3);
 		}
 
-		public synchronized void pushGeomagnetic(float[] geomagnetic) {
-			if (this.geomagnetic == null) {
-				this.geomagnetic = new float[3];
+		public synchronized void pushGeomagnetic(float[] values) {
+			if (geomagnetic == null) {
+				geomagnetic = new float[3];
 			}
 
-			System.arraycopy(geomagnetic, 0, this.geomagnetic, 0, 3);
+			System.arraycopy(values, 0, geomagnetic, 0, 3);
 		}
 
 		public synchronized float[] getGravity() {
