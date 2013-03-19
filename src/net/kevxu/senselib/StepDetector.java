@@ -27,6 +27,8 @@ public class StepDetector implements SensorEventListener {
 
 		public void onStep();
 
+		public void onLinearAccelChanged(float[] values);
+
 	}
 
 	protected StepDetector(Context context) throws SensorNotAvailableException {
