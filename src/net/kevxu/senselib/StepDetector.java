@@ -71,7 +71,7 @@ public class StepDetector implements SensorEventListener {
 	 */
 	public void start() {
 		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread(100);
 			mStepDetectorCalculationThread.start();
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}
@@ -108,20 +108,33 @@ public class StepDetector implements SensorEventListener {
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
 		private static final int DEFAULT_POOL_SIZE = 500;
+		private static final float DEFAULT_LIMIT = 0.9F;
+
+		private final float limit;
 
 		private float[] linearAccel;
 		private float[] gravity;
 
-		private FloatDataPool mDataPool;
+		private boolean readyForStep;
+		private float previousForReadyValue;
 
-		protected StepDetectorCalculationThread() {
-			this(DEFAULT_INTERVAL);
+		// private FloatDataPool mDataPool;
+
+		public StepDetectorCalculationThread() {
+			this(DEFAULT_INTERVAL, DEFAULT_LIMIT);
 		}
 
-		protected StepDetectorCalculationThread(long interval) {
+		public StepDetectorCalculationThread(long interval) {
+			this(interval, DEFAULT_LIMIT);
+		}
+
+		public StepDetectorCalculationThread(long interval, float limit) {
 			super(interval);
 
-			this.mDataPool = new FloatDataPool(DEFAULT_POOL_SIZE);
+			// this.mDataPool = new FloatDataPool(DEFAULT_POOL_SIZE);
+			this.limit = limit;
+
+			this.readyForStep = false;
 		}
 
 		public synchronized void pushGravity(float[] values) {
@@ -164,14 +177,33 @@ public class StepDetector implements SensorEventListener {
 		public void run() {
 			while (!isTerminated()) {
 				if (getGravity() != null && getLinearAccel() != null) {
+					boolean step = false;
+
 					float[] linearAccel = getLinearAccel();
 					float[] gravity = getGravity();
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
-					mDataPool.append(accelInGravityDirection);
+					// mDataPool.append(accelInGravityDirection);
+
+					if (!readyForStep) {
+						if (Math.abs(accelInGravityDirection) > limit) {
+							previousForReadyValue = accelInGravityDirection;
+							readyForStep = true;
+						}
+					} else {
+						if ((previousForReadyValue < 0 && accelInGravityDirection > limit)
+								|| (previousForReadyValue > 0 && accelInGravityDirection < -limit)) {
+							step = true;
+							readyForStep = false;
+						}
+					}
 
 					for (StepListener listener : mStepListeners) {
+						if (step) {
+							listener.onStep();
+						}
+
 						listener.onValue(accelInGravityDirection);
 					}
 				}

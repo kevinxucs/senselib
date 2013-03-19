@@ -112,11 +112,11 @@ public class OrientationService implements SensorEventListener {
 		private float[] gravity;
 		private float[] geomagnetic;
 
-		protected OrientationSensorThread() {
+		public OrientationSensorThread() {
 			this(DEFAULT_INTERVAL);
 		}
 
-		protected OrientationSensorThread(long interval) {
+		public OrientationSensorThread(long interval) {
 			super(interval);
 
 			R = new float[9];

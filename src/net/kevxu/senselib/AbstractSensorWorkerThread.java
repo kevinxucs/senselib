@@ -6,7 +6,7 @@ abstract class AbstractSensorWorkerThread extends Thread {
 
 	private volatile boolean terminated;
 
-	private long interval;
+	private final long interval;
 
 	protected AbstractSensorWorkerThread(long interval) {
 		this.terminated = false;
