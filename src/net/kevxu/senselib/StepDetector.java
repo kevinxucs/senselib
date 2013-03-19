@@ -14,16 +14,12 @@ public class StepDetector implements SensorEventListener {
 
 	private static final String TAG = "StepDetector";
 
-	private static final int POOL_SIZE = 500;
-
 	private Context mContext;
 	private SensorManager mSensorManager;
 	private List<StepListener> mStepListeners;
 
 	private Sensor mLinearAccelSensor;
 	private Sensor mGravitySensor;
-
-	private StepDetectorDataPool mDataPool;
 
 	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
@@ -68,8 +64,6 @@ public class StepDetector implements SensorEventListener {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
 		}
-
-		mDataPool = new StepDetectorDataPool(POOL_SIZE);
 	}
 
 	/**
@@ -163,10 +157,9 @@ public class StepDetector implements SensorEventListener {
 		@Override
 		public void run() {
 			while (!isTerminated()) {
-				if (mDataPool.getSize(Sensor.TYPE_LINEAR_ACCELERATION) > 0
-						&& mDataPool.getSize(Sensor.TYPE_GRAVITY) > 0) {
-					float[] linearAccel = mDataPool.getLatest(Sensor.TYPE_LINEAR_ACCELERATION);
-					float[] gravity = mDataPool.getLatest(Sensor.TYPE_GRAVITY);
+				if (getGravity() != null && getLinearAccel() != null) {
+					float[] linearAccel = getLinearAccel();
+					float[] gravity = getGravity();
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
@@ -211,11 +204,13 @@ public class StepDetector implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		synchronized (this) {
-			Sensor sensor = event.sensor;
-			if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-				mStepDetectorCalculationThread.pushLinearAccel(event.values);
-			} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
-				mStepDetectorCalculationThread.pushGravity(event.values);
+			if (mStepDetectorCalculationThread != null) {
+				Sensor sensor = event.sensor;
+				if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+					mStepDetectorCalculationThread.pushLinearAccel(event.values);
+				} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
+					mStepDetectorCalculationThread.pushGravity(event.values);
+				}
 			}
 		}
 	}
