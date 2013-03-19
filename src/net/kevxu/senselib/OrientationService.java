@@ -1,6 +1,7 @@
 package net.kevxu.senselib;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
@@ -25,9 +26,9 @@ public class OrientationService implements SensorEventListener {
 
 	public interface OrientationServiceListener {
 
-		public void onOrientationChanged(float[] R, float[] values);
-
 		public void onRotationMatrixChanged(float[] R, float[] I);
+
+		public void onMagneticFieldChanged(float[] values);
 
 	}
 
@@ -107,7 +108,9 @@ public class OrientationService implements SensorEventListener {
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
 		private float[] R;
+		private float[] pR;
 		private float[] I;
+		private float[] pI;
 		private float[] gravity;
 		private float[] geomagnetic;
 
@@ -118,8 +121,10 @@ public class OrientationService implements SensorEventListener {
 		protected OrientationSensorThread(long interval) {
 			super(interval);
 
-			I = new float[9];
 			R = new float[9];
+			pR = new float[9];
+			I = new float[9];
+			pI = new float[9];
 		}
 
 		public synchronized void pushGravity(float[] gravity) {
@@ -127,9 +132,7 @@ public class OrientationService implements SensorEventListener {
 				this.gravity = new float[3];
 			}
 
-			for (int i = 0; i < 3; i++) {
-				this.gravity[i] = gravity[i];
-			}
+			System.arraycopy(gravity, 0, this.gravity, 0, 3);
 		}
 
 		public synchronized void pushGeomagnetic(float[] geomagnetic) {
@@ -137,9 +140,7 @@ public class OrientationService implements SensorEventListener {
 				this.geomagnetic = new float[3];
 			}
 
-			for (int i = 0; i < 3; i++) {
-				this.geomagnetic[i] = geomagnetic[i];
-			}
+			System.arraycopy(geomagnetic, 0, this.geomagnetic, 0, 3);
 		}
 
 		public synchronized float[] getGravity() {
@@ -154,11 +155,17 @@ public class OrientationService implements SensorEventListener {
 		public void run() {
 			while (!isTerminated()) {
 				if (getGravity() != null && getGeomagnetic() != null) {
+					if (R != null && I != null) {
+						System.arraycopy(R, 0, pR, 0, 9);
+						System.arraycopy(I, 0, pI, 0, 9);
+					}
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
 				}
 
 				for (OrientationServiceListener orientationServiceListener : mOrientationServiceListeners) {
-					orientationServiceListener.onRotationMatrixChanged(R, I);
+					if (!Arrays.equals(pR, R) && !Arrays.equals(pI, I)) {
+						orientationServiceListener.onRotationMatrixChanged(R, I);
+					}
 				}
 
 				try {
