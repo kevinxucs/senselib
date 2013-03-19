@@ -3,13 +3,15 @@ package net.kevxu.senselib;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.kevxu.senselib.StepDetector.StepListener;
+
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-public class LocationService implements LocationListener {
+public class LocationService implements LocationListener, StepListener {
 
 	private static final String TAG = "LocationService";
 
@@ -17,15 +19,20 @@ public class LocationService implements LocationListener {
 	private LocationManager mLocationManager;
 	private List<LocationServiceListener> mLocationServiceListeners;
 
+	private StepDetector mStepDetector;
+
 	public interface LocationServiceListener {
+
+		// StepDetector Forwarder
+		public void onStep();
 
 	}
 
-	public LocationService(Context context) {
+	public LocationService(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	public LocationService(Context context, LocationServiceListener locationServiceListener) {
+	public LocationService(Context context, LocationServiceListener locationServiceListener) throws SensorNotAvailableException {
 		mContext = context;
 		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
@@ -34,6 +41,8 @@ public class LocationService implements LocationListener {
 		if (locationServiceListener != null) {
 			mLocationServiceListeners.add(locationServiceListener);
 		}
+
+		mStepDetector = new StepDetector(mContext, this);
 	}
 
 	/**
@@ -84,6 +93,15 @@ public class LocationService implements LocationListener {
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void onStep() {
+		synchronized (this) {
+			for (LocationServiceListener locationServiceListener : mLocationServiceListeners) {
+				locationServiceListener.onStep();
+			}
+		}
 	}
 
 }

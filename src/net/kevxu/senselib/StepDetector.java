@@ -29,11 +29,11 @@ public class StepDetector implements SensorEventListener {
 
 	}
 
-	public StepDetector(Context context) throws SensorNotAvailableException {
+	protected StepDetector(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	public StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
+	protected StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -66,7 +66,7 @@ public class StepDetector implements SensorEventListener {
 	/**
 	 * Call this when resume.
 	 */
-	public void start() {
+	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
 			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
@@ -87,7 +87,7 @@ public class StepDetector implements SensorEventListener {
 	/**
 	 * Call this when pause.
 	 */
-	public void stop() {
+	protected void stop() {
 		mStepDetectorCalculationThread.terminate();
 		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
 		try {
@@ -207,7 +207,7 @@ public class StepDetector implements SensorEventListener {
 
 	}
 
-	public void addListener(StepListener stepListener) {
+	protected void addListener(StepListener stepListener) {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
 		} else {
@@ -215,13 +215,13 @@ public class StepDetector implements SensorEventListener {
 		}
 	}
 
-	public void addListeners(List<StepListener> stepListeners) {
+	protected void addListeners(List<StepListener> stepListeners) {
 		if (stepListeners.size() > 0) {
 			mStepListeners.addAll(stepListeners);
 		}
 	}
 
-	public void removeListeners() {
+	protected void removeListeners() {
 		mStepListeners.clear();
 	}
 
