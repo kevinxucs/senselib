@@ -68,7 +68,7 @@ public class StepDetector implements SensorEventListener {
 	 */
 	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread(80);
 			mStepDetectorCalculationThread.start();
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}

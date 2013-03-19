@@ -46,16 +46,18 @@ public class LocationService implements LocationListener, StepListener {
 	}
 
 	/**
-	 * Call this when pause.
+	 * Call this when resume.
 	 */
-	public void stop() {
+	public void start() {
+		mStepDetector.start();
 
 	}
 
 	/**
-	 * Call this when resume.
+	 * Call this when pause.
 	 */
-	public void start() {
+	public void stop() {
+		mStepDetector.stop();
 
 	}
 
