@@ -1,4 +1,4 @@
-package net.kevxu.senselib;
+package net.kevxu.senselib.util;
 
 import java.util.Arrays;
 
