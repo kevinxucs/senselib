@@ -187,12 +187,14 @@ public class OrientationService implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		synchronized (this) {
-			Sensor sensor = event.sensor;
-			int type = sensor.getType();
-			if (type == Sensor.TYPE_GRAVITY) {
-				mOrientationSensorThread.pushGravity(event.values);
-			} else if (type == Sensor.TYPE_MAGNETIC_FIELD) {
-				mOrientationSensorThread.pushGeomagnetic(event.values);
+			if (mOrientationSensorThread != null) {
+				Sensor sensor = event.sensor;
+				int type = sensor.getType();
+				if (type == Sensor.TYPE_GRAVITY) {
+					mOrientationSensorThread.pushGravity(event.values);
+				} else if (type == Sensor.TYPE_MAGNETIC_FIELD) {
+					mOrientationSensorThread.pushGeomagnetic(event.values);
+				}
 			}
 		}
 	}
