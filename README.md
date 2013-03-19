@@ -1,0 +1,5 @@
+# SenseLib
+
+## License
+
+MIT License
