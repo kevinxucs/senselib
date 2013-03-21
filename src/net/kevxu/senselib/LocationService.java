@@ -106,4 +106,10 @@ public class LocationService implements LocationListener, StepListener {
 		}
 	}
 
+	@Override
+	public void onLinearAccelChanged(float[] values) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
