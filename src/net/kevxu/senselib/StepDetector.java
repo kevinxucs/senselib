@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.kevxu.senselib.OrientationService.OrientationServiceListener;
-
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
