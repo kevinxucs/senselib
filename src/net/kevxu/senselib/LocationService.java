@@ -22,9 +22,6 @@ public class LocationService implements LocationListener, StepListener {
 
 	public interface LocationServiceListener {
 
-		// StepDetector Forwarder
-		public void onStep();
-
 	}
 
 	public LocationService(Context context) throws SensorNotAvailableException {
@@ -98,11 +95,8 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onStep() {
-		synchronized (this) {
-			for (LocationServiceListener locationServiceListener : mLocationServiceListeners) {
-				locationServiceListener.onStep();
-			}
-		}
+		// TODO
+
 	}
 
 }
