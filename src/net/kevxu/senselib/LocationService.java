@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.kevxu.senselib.StepDetector.StepListener;
-
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;

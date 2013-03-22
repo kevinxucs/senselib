@@ -21,6 +21,8 @@ public class StepDetector implements SensorEventListener {
 	private Sensor mLinearAccelSensor;
 	private Sensor mGravitySensor;
 
+	private OrientationService mOrientationService;
+
 	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
 	public interface StepListener {
