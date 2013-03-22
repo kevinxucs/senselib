@@ -120,7 +120,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
-		private static final long DEFAULT_INTERVAL = 30;
+		private static final long DEFAULT_INTERVAL = 75;
 		private static final float DEFAULT_LIMIT = 1.0F;
 
 		private final float limit;
@@ -213,7 +213,6 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		public void run() {
 			boolean readyForStep = false;
 			float previousForReadyValue = 0.0F;
-			// FloatDataPool dataPool = new FloatDataPool(2);
 
 			float[] aiwcs = new float[3];
 
