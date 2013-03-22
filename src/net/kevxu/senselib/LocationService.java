@@ -100,7 +100,7 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onProviderEnabled(String provider) {
-
+		
 	}
 
 	@Override
