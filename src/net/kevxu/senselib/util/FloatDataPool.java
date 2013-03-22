@@ -77,6 +77,16 @@ public class FloatDataPool {
 		return pd;
 	}
 
+	public float getSum() {
+		float sum = 0.0F;
+
+		for (int i = 0; i < mSize; i++) {
+			sum += mPool[(mStartPos + i) % mPoolSize];
+		}
+
+		return sum;
+	}
+
 	@Override
 	public String toString() {
 		return Arrays.toString(mPool);

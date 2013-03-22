@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.kevxu.senselib.OrientationService.OrientationServiceListener;
+import net.kevxu.senselib.util.FloatDataPool;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -148,6 +149,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			}
 
 			System.arraycopy(values, 0, linearAccel, 0, 3);
+			// for (int i = 0; i < 3; i++) {
+			// linearAccel[i] = values[i];
+			// }
 		}
 
 		public synchronized void pushGravity(float[] values) {
@@ -156,6 +160,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			}
 
 			System.arraycopy(values, 0, gravity, 0, 3);
+			// for (int i = 0; i < 3; i++) {
+			// gravity[i] = values[i];
+			// }
 		}
 
 		public synchronized void pushRotationMatrix(float[] R) {
@@ -164,6 +171,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			}
 
 			System.arraycopy(R, 0, rotationMatrix, 0, 9);
+			// for (int i = 0; i < 9; i++) {
+			// rotationMatrix[i] = R[i];
+			// }
 		}
 
 		public synchronized float[] getLinearAccel() {
@@ -203,16 +213,19 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		public void run() {
 			boolean readyForStep = false;
 			float previousForReadyValue = 0.0F;
+			// FloatDataPool dataPool = new FloatDataPool(2);
 
 			float[] aiwcs = new float[3];
 
 			while (!isTerminated()) {
-				if (getGravity() != null && getLinearAccel() != null) {
+				// if (getGravity() != null && getLinearAccel() != null) {
+				if (getLinearAccel() != null) {
 					boolean step = false;
 
 					float[] linearAccel = getLinearAccel();
 					// float[] gravity = getGravity();
 					float[] rotationMatrix = getRotationMatrix();
+					getAccelInWorldCoordinateSystem(aiwcs, linearAccel, rotationMatrix);
 
 					// float accelInGravityDirection =
 					// getAccelInGravityDirection(linearAccel, gravity);
@@ -230,8 +243,6 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 							readyForStep = false;
 						}
 					}
-
-					getAccelInWorldCoordinateSystem(aiwcs, linearAccel, rotationMatrix);
 
 					for (StepListener listener : mStepListeners) {
 						if (step) {
@@ -281,7 +292,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 				Sensor sensor = event.sensor;
 				if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
 					mStepDetectorCalculationThread.pushLinearAccel(event.values);
-				} 
+				}
 				// else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
 				// mStepDetectorCalculationThread.pushGravity(event.values);
 				// }
