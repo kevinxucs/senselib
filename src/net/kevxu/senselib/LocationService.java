@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.kevxu.senselib.StepDetector.StepListener;
-
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,16 +14,21 @@ public class LocationService implements LocationListener, StepListener {
 
 	private static final String TAG = "LocationService";
 
+	public static int LEVEL_GPS_NOT_ENABLED = 0;
+
 	private Context mContext;
 	private LocationManager mLocationManager;
 	private List<LocationServiceListener> mLocationServiceListeners;
 
 	private StepDetector mStepDetector;
 
+	private volatile int mServiceLevel;
+
 	public interface LocationServiceListener {
 
-		// StepDetector Forwarder
-		public void onStep();
+		public void onServiceLevelChanged(int level);
+
+		public void onLocationChanged(Location location);
 
 	}
 
@@ -50,7 +54,7 @@ public class LocationService implements LocationListener, StepListener {
 	 */
 	public void start() {
 		mStepDetector.start();
-
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
 	}
 
 	/**
@@ -58,7 +62,7 @@ public class LocationService implements LocationListener, StepListener {
 	 */
 	public void stop() {
 		mStepDetector.stop();
-
+		mLocationManager.removeUpdates(this);
 	}
 
 	public void addListener(LocationServiceListener locationServiceListener) {
@@ -71,6 +75,15 @@ public class LocationService implements LocationListener, StepListener {
 
 	public void removeListeners() {
 		mLocationServiceListeners.clear();
+	}
+
+	private synchronized void setServiceLevel(int serviceLevel) {
+		if (serviceLevel != mServiceLevel) {
+			mServiceLevel = serviceLevel;
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onServiceLevelChanged(mServiceLevel);
+			}
+		}
 	}
 
 	@Override
@@ -87,29 +100,26 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onStep() {
-		synchronized (this) {
-			for (LocationServiceListener locationServiceListener : mLocationServiceListeners) {
-				locationServiceListener.onStep();
-			}
+		if (provider.equals(LocationManager.GPS_PROVIDER)) {
+			setServiceLevel(LEVEL_GPS_NOT_ENABLED);
 		}
 	}
 
 	@Override
-	public void onLinearAccelChanged(float[] values) {
+	public void onStep() {
+		// TODO
+
+	}
+
+	@Override
+	public void onMovement(float[] values) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

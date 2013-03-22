@@ -3,6 +3,7 @@ package net.kevxu.senselib;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.kevxu.senselib.OrientationService.OrientationServiceListener;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -10,7 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-public class StepDetector implements SensorEventListener {
+public class StepDetector implements SensorEventListener, OrientationServiceListener {
 
 	private static final String TAG = "StepDetector";
 
@@ -21,23 +22,31 @@ public class StepDetector implements SensorEventListener {
 	private Sensor mLinearAccelSensor;
 	private Sensor mGravitySensor;
 
+	private OrientationService mOrientationService;
+
 	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
 	public interface StepListener {
 
 		public void onStep();
 
-		public void onLinearAccelChanged(float[] values);
+		// In world's coordinate system, where is tangential to the ground at
+		// the device's current location and points towards the magnetic North
+		// Pole, Z points towards the sky and is perpendicular to the ground,
+		// and X is defined as the vector product Y·Z
+		public void onMovement(float[] values);
 
 	}
 
-	protected StepDetector(Context context) throws SensorNotAvailableException {
+	public StepDetector(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	protected StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
+	public StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+
+		mOrientationService = new OrientationService(mContext, this);
 
 		List<Sensor> liearAccelSensors = mSensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
@@ -68,9 +77,9 @@ public class StepDetector implements SensorEventListener {
 	/**
 	 * Call this when resume.
 	 */
-	protected void start() {
+	public void start() {
 		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread(80);
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}
@@ -84,12 +93,14 @@ public class StepDetector implements SensorEventListener {
 
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 		Log.i(TAG, "Gravity sesnor registered.");
+
+		mOrientationService.start();
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	protected void stop() {
+	public void stop() {
 		mStepDetectorCalculationThread.terminate();
 		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
 		try {
@@ -102,19 +113,20 @@ public class StepDetector implements SensorEventListener {
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");
+
+		mOrientationService.stop();
 	}
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
-		private static final float DEFAULT_LIMIT = 0.9F;
+		private static final long DEFAULT_INTERVAL = 80;
+		private static final float DEFAULT_LIMIT = 1.0F;
 
 		private final float limit;
 
 		private float[] linearAccel;
 		private float[] gravity;
-
-		private boolean readyForStep;
-		private float previousForReadyValue;
+		private float[] rotationMatrix;
 
 		public StepDetectorCalculationThread() {
 			this(DEFAULT_INTERVAL, DEFAULT_LIMIT);
@@ -128,16 +140,6 @@ public class StepDetector implements SensorEventListener {
 			super(interval);
 
 			this.limit = limit;
-
-			this.readyForStep = false;
-		}
-
-		public synchronized void pushGravity(float[] values) {
-			if (gravity == null) {
-				gravity = new float[3];
-			}
-
-			System.arraycopy(values, 0, gravity, 0, 3);
 		}
 
 		public synchronized void pushLinearAccel(float[] values) {
@@ -146,14 +148,43 @@ public class StepDetector implements SensorEventListener {
 			}
 
 			System.arraycopy(values, 0, linearAccel, 0, 3);
+			// for (int i = 0; i < 3; i++) {
+			// linearAccel[i] = values[i];
+			// }
+		}
+
+		public synchronized void pushGravity(float[] values) {
+			if (gravity == null) {
+				gravity = new float[3];
+			}
+
+			System.arraycopy(values, 0, gravity, 0, 3);
+			// for (int i = 0; i < 3; i++) {
+			// gravity[i] = values[i];
+			// }
+		}
+
+		public synchronized void pushRotationMatrix(float[] R) {
+			if (rotationMatrix == null) {
+				rotationMatrix = new float[9];
+			}
+
+			System.arraycopy(R, 0, rotationMatrix, 0, 9);
+			// for (int i = 0; i < 9; i++) {
+			// rotationMatrix[i] = R[i];
+			// }
+		}
+
+		public synchronized float[] getLinearAccel() {
+			return linearAccel;
 		}
 
 		public synchronized float[] getGravity() {
 			return gravity;
 		}
 
-		public synchronized float[] getLinearAccel() {
-			return linearAccel;
+		public synchronized float[] getRotationMatrix() {
+			return rotationMatrix;
 		}
 
 		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
@@ -168,16 +199,34 @@ public class StepDetector implements SensorEventListener {
 			return aigd;
 		}
 
+		private void getAccelInWorldCoordinateSystem(float[] aiwcs, float[] linearAccel, float[] rotationMatrix) {
+			aiwcs[0] = linearAccel[0] * rotationMatrix[0] + linearAccel[1]
+					* rotationMatrix[1] + linearAccel[2] * rotationMatrix[2];
+			aiwcs[1] = linearAccel[0] * rotationMatrix[3] + linearAccel[1]
+					* rotationMatrix[4] + linearAccel[2] * rotationMatrix[5];
+			aiwcs[2] = linearAccel[0] * rotationMatrix[6] + linearAccel[1]
+					* rotationMatrix[7] + linearAccel[2] * rotationMatrix[8];
+		}
+
 		@Override
 		public void run() {
+			boolean readyForStep = false;
+			float previousForReadyValue = 0.0F;
+
+			float[] aiwcs = new float[3];
+
 			while (!isTerminated()) {
 				if (getGravity() != null && getLinearAccel() != null) {
+					// if (getLinearAccel() != null) {
 					boolean step = false;
 
 					float[] linearAccel = getLinearAccel();
-					float[] gravity = getGravity();
+					// float[] gravity = getGravity();
+					float[] rotationMatrix = getRotationMatrix();
+					getAccelInWorldCoordinateSystem(aiwcs, linearAccel, rotationMatrix);
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
+					// float accelInGravityDirection = aiwcs[2];
 
 					if (!readyForStep) {
 						if (Math.abs(accelInGravityDirection) > limit) {
@@ -196,6 +245,7 @@ public class StepDetector implements SensorEventListener {
 						if (step) {
 							listener.onStep();
 						}
+						listener.onMovement(aiwcs);
 					}
 				}
 
@@ -209,7 +259,7 @@ public class StepDetector implements SensorEventListener {
 
 	}
 
-	protected void addListener(StepListener stepListener) {
+	public void addListener(StepListener stepListener) {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
 		} else {
@@ -217,13 +267,13 @@ public class StepDetector implements SensorEventListener {
 		}
 	}
 
-	protected void addListeners(List<StepListener> stepListeners) {
+	public void addListeners(List<StepListener> stepListeners) {
 		if (stepListeners.size() > 0) {
 			mStepListeners.addAll(stepListeners);
 		}
 	}
 
-	protected void removeListeners() {
+	public void removeListeners() {
 		mStepListeners.clear();
 	}
 
@@ -244,6 +294,21 @@ public class StepDetector implements SensorEventListener {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onRotationMatrixChanged(float[] R, float[] I) {
+		synchronized (this) {
+			if (mStepDetectorCalculationThread != null) {
+				mStepDetectorCalculationThread.pushRotationMatrix(R);
+			}
+		}
+	}
+
+	@Override
+	public void onMagneticFieldChanged(float[] values) {
+		// Not implemented.
+
 	}
 
 }

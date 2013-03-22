@@ -1,7 +1,6 @@
 package net.kevxu.senselib;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
@@ -154,11 +153,11 @@ public class OrientationService implements SensorEventListener {
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
 				}
 
-				for (OrientationServiceListener orientationServiceListener : mOrientationServiceListeners) {
-					orientationServiceListener.onRotationMatrixChanged(R, I);
+				for (OrientationServiceListener listener : mOrientationServiceListeners) {
+					listener.onRotationMatrixChanged(R, I);
 
 					if (getGeomagnetic() != null) {
-						orientationServiceListener.onMagneticFieldChanged(getGeomagnetic());
+						listener.onMagneticFieldChanged(getGeomagnetic());
 					}
 				}
 
