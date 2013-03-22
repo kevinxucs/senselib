@@ -30,7 +30,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 		public void onStep();
 
-		// In world's coordinate system, where is tangential to the ground at
+		// In world's coordinate system, where X is tangential to the ground at
 		// the device's current location and points towards the magnetic North
 		// Pole, Z points towards the sky and is perpendicular to the ground,
 		// and X is defined as the vector product Y·Z

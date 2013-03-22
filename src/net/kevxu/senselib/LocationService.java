@@ -157,7 +157,7 @@ public class LocationService implements LocationListener, StepListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		synchronized (this) {
-
+			mLocationServiceFusionThread.pushGPSLocation(location);
 		}
 	}
 
