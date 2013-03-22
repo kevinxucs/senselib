@@ -153,11 +153,11 @@ public class OrientationService implements SensorEventListener {
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
 				}
 
-				for (OrientationServiceListener orientationServiceListener : mOrientationServiceListeners) {
-					orientationServiceListener.onRotationMatrixChanged(R, I);
+				for (OrientationServiceListener listener : mOrientationServiceListeners) {
+					listener.onRotationMatrixChanged(R, I);
 
 					if (getGeomagnetic() != null) {
-						orientationServiceListener.onMagneticFieldChanged(getGeomagnetic());
+						listener.onMagneticFieldChanged(getGeomagnetic());
 					}
 				}
 

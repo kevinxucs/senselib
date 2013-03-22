@@ -14,11 +14,15 @@ public class LocationService implements LocationListener, StepListener {
 
 	private static final String TAG = "LocationService";
 
+	public static int LEVEL_GPS_NOT_ENABLED = 0;
+
 	private Context mContext;
 	private LocationManager mLocationManager;
 	private List<LocationServiceListener> mLocationServiceListeners;
 
 	private StepDetector mStepDetector;
+
+	private int mServiceLevel;
 
 	public interface LocationServiceListener {
 
@@ -71,6 +75,16 @@ public class LocationService implements LocationListener, StepListener {
 		mLocationServiceListeners.clear();
 	}
 
+	private synchronized void setServiceLevel(int serviceLevel) {
+		mServiceLevel = serviceLevel;
+	}
+
+	private synchronized void pushServiceLevel() {
+		for (LocationServiceListener listener : mLocationServiceListeners) {
+			listener.onServiceLevelChanged(mServiceLevel);
+		}
+	}
+
 	@Override
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
@@ -85,14 +99,15 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-
+		if (provider.equals(LocationManager.GPS_PROVIDER)) {
+			setServiceLevel(LEVEL_GPS_NOT_ENABLED);
+			pushServiceLevel();
+		}
 	}
 
 	@Override
