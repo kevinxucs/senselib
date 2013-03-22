@@ -97,7 +97,7 @@ public class OrientationService implements SensorEventListener {
 		try {
 			mOrientationSensorThread.join();
 		} catch (InterruptedException e) {
-			Log.e(TAG, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 		}
 		Log.i(TAG, "OrientationSensorThread stopped.");
 		mOrientationSensorThread = null;

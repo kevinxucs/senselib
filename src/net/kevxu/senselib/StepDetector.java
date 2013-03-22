@@ -107,7 +107,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		try {
 			mStepDetectorCalculationThread.join();
 		} catch (InterruptedException e) {
-			Log.e(TAG, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 		}
 		Log.i(TAG, "StepDetectorCalculationThread stopped.");
 		mStepDetectorCalculationThread = null;

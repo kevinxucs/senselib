@@ -83,7 +83,7 @@ public class LocationService implements LocationListener, StepListener {
 		try {
 			mLocationServiceFusionThread.join();
 		} catch (InterruptedException e) {
-			Log.e(TAG, e.getMessage(), e);
+			Log.w(TAG, e.getMessage(), e);
 		}
 		Log.i(TAG, "LocationServiceFusionThread stoppped.");
 		mLocationServiceFusionThread = null;
@@ -107,8 +107,14 @@ public class LocationService implements LocationListener, StepListener {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
-
+			while(!isTerminated()) {
+				
+				try {
+					Thread.sleep(getInterval());
+				} catch (InterruptedException e) {
+					Log.w(TAG, e.getMessage(), e);
+				}
+			}
 		}
 
 	}
