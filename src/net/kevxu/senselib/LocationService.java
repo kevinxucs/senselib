@@ -97,6 +97,8 @@ public class LocationService implements LocationListener, StepListener {
 	@SuppressWarnings("unused")
 	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
 
+		private Location gpsLocation;
+
 		public LocationServiceFusionThread() {
 			this(DEFAULT_INTERVAL);
 		}
@@ -105,10 +107,22 @@ public class LocationService implements LocationListener, StepListener {
 			super(interval);
 		}
 
+		public synchronized void pushGPSLocation(Location location) {
+			if (gpsLocation == null) {
+				gpsLocation = new Location(location);
+			} else {
+				gpsLocation.set(location);
+			}
+		}
+
+		public synchronized Location getGPSLocation() {
+			return gpsLocation;
+		}
+
 		@Override
 		public void run() {
-			while(!isTerminated()) {
-				
+			while (!isTerminated()) {
+
 				try {
 					Thread.sleep(getInterval());
 				} catch (InterruptedException e) {
@@ -142,8 +156,9 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
+		synchronized (this) {
 
+		}
 	}
 
 	@Override
@@ -154,30 +169,36 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		if (provider.equals(LocationManager.GPS_PROVIDER)) {
-			Log.i(TAG, "GPS enabled.");
-			setServiceLevel(LEVEL_GPS_ENABLED);
+		synchronized (this) {
+			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+				Log.i(TAG, "GPS enabled.");
+				setServiceLevel(LEVEL_GPS_ENABLED);
+			}
 		}
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		if (provider.equals(LocationManager.GPS_PROVIDER)) {
-			Log.i(TAG, "GPS disabled.");
-			setServiceLevel(LEVEL_GPS_NOT_ENABLED);
+		synchronized (this) {
+			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+				Log.i(TAG, "GPS disabled.");
+				setServiceLevel(LEVEL_GPS_NOT_ENABLED);
+			}
 		}
 	}
 
 	@Override
 	public void onStep() {
-		// TODO
+		synchronized (this) {
 
+		}
 	}
 
 	@Override
 	public void onMovement(float[] values) {
-		// TODO Auto-generated method stub
+		synchronized (this) {
 
+		}
 	}
 
 }
