@@ -22,6 +22,8 @@ public class LocationService implements LocationListener, StepListener {
 
 	public interface LocationServiceListener {
 
+		public void onServiceLevelChanged(int level);
+
 	}
 
 	public LocationService(Context context) throws SensorNotAvailableException {

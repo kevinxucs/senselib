@@ -79,7 +79,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	 */
 	public void start() {
 		if (mStepDetectorCalculationThread == null) {
-			mStepDetectorCalculationThread = new StepDetectorCalculationThread(80);
+			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
 			Log.i(TAG, "StepDetectorCalculationThread started.");
 		}
@@ -119,7 +119,8 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
-		private static final float DEFAULT_LIMIT = 0.9F;
+		private static final long DEFAULT_INTERVAL = 30;
+		private static final float DEFAULT_LIMIT = 1.0F;
 
 		private final float limit;
 
@@ -280,9 +281,10 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 				Sensor sensor = event.sensor;
 				if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
 					mStepDetectorCalculationThread.pushLinearAccel(event.values);
-				} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
-					mStepDetectorCalculationThread.pushGravity(event.values);
-				}
+				} 
+				// else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
+				// mStepDetectorCalculationThread.pushGravity(event.values);
+				// }
 			}
 		}
 	}
