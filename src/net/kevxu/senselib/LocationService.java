@@ -22,11 +22,13 @@ public class LocationService implements LocationListener, StepListener {
 
 	private StepDetector mStepDetector;
 
-	private int mServiceLevel;
+	private volatile int mServiceLevel;
 
 	public interface LocationServiceListener {
 
 		public void onServiceLevelChanged(int level);
+
+		public void onLocationChanged(Location location);
 
 	}
 
@@ -76,12 +78,11 @@ public class LocationService implements LocationListener, StepListener {
 	}
 
 	private synchronized void setServiceLevel(int serviceLevel) {
-		mServiceLevel = serviceLevel;
-	}
-
-	private synchronized void pushServiceLevel() {
-		for (LocationServiceListener listener : mLocationServiceListeners) {
-			listener.onServiceLevelChanged(mServiceLevel);
+		if (serviceLevel != mServiceLevel) {
+			mServiceLevel = serviceLevel;
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onServiceLevelChanged(mServiceLevel);
+			}
 		}
 	}
 
@@ -106,7 +107,6 @@ public class LocationService implements LocationListener, StepListener {
 	public void onProviderDisabled(String provider) {
 		if (provider.equals(LocationManager.GPS_PROVIDER)) {
 			setServiceLevel(LEVEL_GPS_NOT_ENABLED);
-			pushServiceLevel();
 		}
 	}
 
