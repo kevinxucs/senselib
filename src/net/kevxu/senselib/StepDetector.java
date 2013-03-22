@@ -118,6 +118,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		Log.i(TAG, "StepDetector stopped.");
 	}
 
+	@SuppressWarnings("unused")
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
 		private static final long DEFAULT_INTERVAL = 80;
