@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 public class LocationService implements LocationListener, StepListener {
 
@@ -32,11 +33,11 @@ public class LocationService implements LocationListener, StepListener {
 
 	}
 
-	public LocationService(Context context) throws SensorNotAvailableException {
-		this(context, null);
+	protected LocationService(Context context, StepDetector stepDetector) throws SensorNotAvailableException {
+		this(context, stepDetector, null);
 	}
 
-	public LocationService(Context context, LocationServiceListener locationServiceListener) throws SensorNotAvailableException {
+	protected LocationService(Context context, StepDetector stepDetector, LocationServiceListener locationServiceListener) throws SensorNotAvailableException {
 		mContext = context;
 		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
@@ -46,23 +47,28 @@ public class LocationService implements LocationListener, StepListener {
 			mLocationServiceListeners.add(locationServiceListener);
 		}
 
-		mStepDetector = new StepDetector(mContext, this);
+		mStepDetector = stepDetector;
+		mStepDetector.addListener(this);
 	}
 
 	/**
 	 * Call this when resume.
 	 */
-	public void start() {
-		mStepDetector.start();
+	protected void start() {
 		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
+		Log.i(TAG, "GPS update registered.");
+
+		Log.i(TAG, "LocationService started.");
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	public void stop() {
-		mStepDetector.stop();
+	protected void stop() {
 		mLocationManager.removeUpdates(this);
+		Log.i(TAG, "GPS update unregistered.");
+
+		Log.i(TAG, "LocationService stopped.");
 	}
 
 	public void addListener(LocationServiceListener locationServiceListener) {
@@ -73,7 +79,7 @@ public class LocationService implements LocationListener, StepListener {
 		}
 	}
 
-	public void removeListeners() {
+	protected void removeListeners() {
 		mLocationServiceListeners.clear();
 	}
 

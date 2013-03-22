@@ -31,11 +31,11 @@ public class OrientationService implements SensorEventListener {
 
 	}
 
-	public OrientationService(Context context) throws SensorNotAvailableException {
+	protected OrientationService(Context context) throws SensorNotAvailableException {
 		this(context, null);
 	}
 
-	public OrientationService(Context context, OrientationServiceListener orientationServiceListener) throws SensorNotAvailableException {
+	protected OrientationService(Context context, OrientationServiceListener orientationServiceListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -68,7 +68,7 @@ public class OrientationService implements SensorEventListener {
 	/**
 	 * Call this when resume.
 	 */
-	public void start() {
+	protected void start() {
 		if (mOrientationSensorThread == null) {
 			mOrientationSensorThread = new OrientationSensorThread();
 			mOrientationSensorThread.start();
@@ -84,12 +84,14 @@ public class OrientationService implements SensorEventListener {
 
 		mSensorManager.registerListener(this, mMagneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
 		Log.i(TAG, "Magnetic field sensor registered.");
+
+		Log.i(TAG, "OrientationService started.");
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	public void stop() {
+	protected void stop() {
 		mOrientationSensorThread.terminate();
 		Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
 		try {
@@ -102,6 +104,8 @@ public class OrientationService implements SensorEventListener {
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");
+
+		Log.i(TAG, "OrientationService stopped.");
 	}
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
@@ -180,7 +184,7 @@ public class OrientationService implements SensorEventListener {
 		}
 	}
 
-	public void removeListeners() {
+	protected void removeListeners() {
 		mOrientationServiceListeners.clear();
 	}
 

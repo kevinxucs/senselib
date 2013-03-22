@@ -38,15 +38,16 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	}
 
-	public StepDetector(Context context) throws SensorNotAvailableException {
-		this(context, null);
+	protected StepDetector(Context context, OrientationService orientationService) throws SensorNotAvailableException {
+		this(context, orientationService, null);
 	}
 
-	public StepDetector(Context context, StepListener stepListener) throws SensorNotAvailableException {
+	protected StepDetector(Context context, OrientationService orientationService, StepListener stepListener) throws SensorNotAvailableException {
 		mContext = context;
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
-		mOrientationService = new OrientationService(mContext, this);
+		mOrientationService = orientationService;
+		mOrientationService.addListener(this);
 
 		List<Sensor> liearAccelSensors = mSensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
@@ -77,7 +78,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	/**
 	 * Call this when resume.
 	 */
-	public void start() {
+	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
 			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
 			mStepDetectorCalculationThread.start();
@@ -94,13 +95,13 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
 		Log.i(TAG, "Gravity sesnor registered.");
 
-		mOrientationService.start();
+		Log.i(TAG, "StepDetector started.");
 	}
 
 	/**
 	 * Call this when pause.
 	 */
-	public void stop() {
+	protected void stop() {
 		mStepDetectorCalculationThread.terminate();
 		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
 		try {
@@ -114,7 +115,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");
 
-		mOrientationService.stop();
+		Log.i(TAG, "StepDetector stopped.");
 	}
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
@@ -267,13 +268,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		}
 	}
 
-	public void addListeners(List<StepListener> stepListeners) {
-		if (stepListeners.size() > 0) {
-			mStepListeners.addAll(stepListeners);
-		}
-	}
-
-	public void removeListeners() {
+	protected void removeListeners() {
 		mStepListeners.clear();
 	}
 
