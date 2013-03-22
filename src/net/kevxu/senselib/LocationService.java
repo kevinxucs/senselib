@@ -100,9 +100,9 @@ public class LocationService implements LocationListener, StepListener {
 	}
 
 	@Override
-	public void onValue(float[] values) {
+	public void onMovement(float[] values) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

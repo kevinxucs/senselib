@@ -31,7 +31,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		public void onStep();
 
 		// Debug purpose
-		public void onValue(float[] values);
+		public void onMovement(float[] values);
 
 	}
 
@@ -207,10 +207,12 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 					boolean step = false;
 
 					float[] linearAccel = getLinearAccel();
-					float[] gravity = getGravity();
+					// float[] gravity = getGravity();
 					float[] rotationMatrix = getRotationMatrix();
 
-					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
+					// float accelInGravityDirection =
+					// getAccelInGravityDirection(linearAccel, gravity);
+					float accelInGravityDirection = aiwcs[2];
 
 					if (!readyForStep) {
 						if (Math.abs(accelInGravityDirection) > limit) {
@@ -231,7 +233,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 						if (step) {
 							listener.onStep();
 						}
-						listener.onValue(aiwcs);
+						listener.onMovement(aiwcs);
 					}
 				}
 
