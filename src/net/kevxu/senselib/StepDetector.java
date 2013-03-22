@@ -31,6 +31,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 		public void onStep();
 
+		// Debug purpose
+		public void onValue(float[] values);
+
 	}
 
 	public StepDetector(Context context) throws SensorNotAvailableException {
@@ -120,9 +123,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 		private float[] linearAccel;
 		private float[] gravity;
-
-		private boolean readyForStep;
-		private float previousForReadyValue;
+		private float[] rotationMatrix;
 
 		public StepDetectorCalculationThread() {
 			this(DEFAULT_INTERVAL, DEFAULT_LIMIT);
@@ -136,16 +137,6 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			super(interval);
 
 			this.limit = limit;
-
-			this.readyForStep = false;
-		}
-
-		public synchronized void pushGravity(float[] values) {
-			if (gravity == null) {
-				gravity = new float[3];
-			}
-
-			System.arraycopy(values, 0, gravity, 0, 3);
 		}
 
 		public synchronized void pushLinearAccel(float[] values) {
@@ -156,12 +147,32 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			System.arraycopy(values, 0, linearAccel, 0, 3);
 		}
 
-		public synchronized float[] getGravity() {
-			return gravity;
+		public synchronized void pushGravity(float[] values) {
+			if (gravity == null) {
+				gravity = new float[3];
+			}
+
+			System.arraycopy(values, 0, gravity, 0, 3);
+		}
+
+		public synchronized void pushRotationMatrix(float[] R) {
+			if (rotationMatrix == null) {
+				rotationMatrix = new float[9];
+			}
+
+			System.arraycopy(R, 0, rotationMatrix, 0, 9);
 		}
 
 		public synchronized float[] getLinearAccel() {
 			return linearAccel;
+		}
+
+		public synchronized float[] getGravity() {
+			return gravity;
+		}
+
+		public synchronized float[] getRotationMatrix() {
+			return rotationMatrix;
 		}
 
 		private float getAccelInGravityDirection(float[] linearAccel, float[] gravity) {
@@ -176,14 +187,29 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			return aigd;
 		}
 
+		private void getAccelInWorldCoordinateSystem(float[] aiwcs, float[] linearAccel, float[] rotationMatrix) {
+			aiwcs[0] = linearAccel[0] * rotationMatrix[0] + linearAccel[1]
+					* rotationMatrix[1] + linearAccel[2] * rotationMatrix[2];
+			aiwcs[1] = linearAccel[0] * rotationMatrix[3] + linearAccel[1]
+					* rotationMatrix[4] + linearAccel[2] * rotationMatrix[5];
+			aiwcs[2] = linearAccel[0] * rotationMatrix[6] + linearAccel[1]
+					* rotationMatrix[7] + linearAccel[2] * rotationMatrix[8];
+		}
+
 		@Override
 		public void run() {
+			boolean readyForStep = false;
+			float previousForReadyValue = 0.0F;
+
+			float[] aiwcs = new float[3];
+
 			while (!isTerminated()) {
 				if (getGravity() != null && getLinearAccel() != null) {
 					boolean step = false;
 
 					float[] linearAccel = getLinearAccel();
 					float[] gravity = getGravity();
+					float[] rotationMatrix = getRotationMatrix();
 
 					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
 
@@ -200,10 +226,13 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 						}
 					}
 
+					getAccelInWorldCoordinateSystem(aiwcs, linearAccel, rotationMatrix);
+
 					for (StepListener listener : mStepListeners) {
 						if (step) {
 							listener.onStep();
 						}
+						listener.onValue(aiwcs);
 					}
 				}
 
@@ -256,8 +285,11 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	@Override
 	public void onRotationMatrixChanged(float[] R, float[] I) {
-		// TODO Auto-generated method stub
-
+		synchronized (this) {
+			if (mStepDetectorCalculationThread != null) {
+				mStepDetectorCalculationThread.pushRotationMatrix(R);
+			}
+		}
 	}
 
 	@Override
