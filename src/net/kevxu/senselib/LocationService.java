@@ -48,7 +48,7 @@ public class LocationService implements LocationListener, StepListener {
 	 */
 	public void start() {
 		mStepDetector.start();
-
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class LocationService implements LocationListener, StepListener {
 	 */
 	public void stop() {
 		mStepDetector.stop();
-
+		mLocationManager.removeUpdates(this);
 	}
 
 	public void addListener(LocationServiceListener locationServiceListener) {
