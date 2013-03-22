@@ -120,7 +120,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
-		private static final long DEFAULT_INTERVAL = 75;
+		private static final long DEFAULT_INTERVAL = 80;
 		private static final float DEFAULT_LIMIT = 1.0F;
 
 		private final float limit;
@@ -217,8 +217,8 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			float[] aiwcs = new float[3];
 
 			while (!isTerminated()) {
-				// if (getGravity() != null && getLinearAccel() != null) {
-				if (getLinearAccel() != null) {
+				if (getGravity() != null && getLinearAccel() != null) {
+					// if (getLinearAccel() != null) {
 					boolean step = false;
 
 					float[] linearAccel = getLinearAccel();
@@ -226,9 +226,8 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 					float[] rotationMatrix = getRotationMatrix();
 					getAccelInWorldCoordinateSystem(aiwcs, linearAccel, rotationMatrix);
 
-					// float accelInGravityDirection =
-					// getAccelInGravityDirection(linearAccel, gravity);
-					float accelInGravityDirection = aiwcs[2];
+					float accelInGravityDirection = getAccelInGravityDirection(linearAccel, gravity);
+					// float accelInGravityDirection = aiwcs[2];
 
 					if (!readyForStep) {
 						if (Math.abs(accelInGravityDirection) > limit) {
@@ -291,10 +290,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 				Sensor sensor = event.sensor;
 				if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
 					mStepDetectorCalculationThread.pushLinearAccel(event.values);
+				} else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
+					mStepDetectorCalculationThread.pushGravity(event.values);
 				}
-				// else if (sensor.getType() == Sensor.TYPE_GRAVITY) {
-				// mStepDetectorCalculationThread.pushGravity(event.values);
-				// }
 			}
 		}
 	}
