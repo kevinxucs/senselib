@@ -16,12 +16,15 @@ public class LocationService implements LocationListener, StepListener {
 	private static final String TAG = "LocationService";
 
 	public static int LEVEL_GPS_NOT_ENABLED = 0;
+	public static int LEVEL_GPS_ENABLED = 1;
 
 	private Context mContext;
 	private LocationManager mLocationManager;
 	private List<LocationServiceListener> mLocationServiceListeners;
 
 	private StepDetector mStepDetector;
+
+	private LocationServiceFusionThread mLocationServiceFusionThread;
 
 	private volatile int mServiceLevel;
 
@@ -55,6 +58,16 @@ public class LocationService implements LocationListener, StepListener {
 	 * Call this when resume.
 	 */
 	protected void start() {
+		if (mLocationServiceFusionThread == null) {
+			mLocationServiceFusionThread = new LocationServiceFusionThread();
+			mLocationServiceFusionThread.start();
+			Log.i(TAG, "LocationServiceFusionThread started.");
+		}
+
+		if (mLocationManager == null) {
+			mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+		}
+
 		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
 		Log.i(TAG, "GPS update registered.");
 
@@ -65,10 +78,39 @@ public class LocationService implements LocationListener, StepListener {
 	 * Call this when pause.
 	 */
 	protected void stop() {
+		mLocationServiceFusionThread.terminate();
+		Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");
+		try {
+			mLocationServiceFusionThread.join();
+		} catch (InterruptedException e) {
+			Log.e(TAG, e.getMessage(), e);
+		}
+		Log.i(TAG, "LocationServiceFusionThread stoppped.");
+		mLocationServiceFusionThread = null;
+
 		mLocationManager.removeUpdates(this);
 		Log.i(TAG, "GPS update unregistered.");
 
 		Log.i(TAG, "LocationService stopped.");
+	}
+
+	@SuppressWarnings("unused")
+	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
+
+		public LocationServiceFusionThread() {
+			this(DEFAULT_INTERVAL);
+		}
+
+		public LocationServiceFusionThread(long interval) {
+			super(interval);
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 	public void addListener(LocationServiceListener locationServiceListener) {
@@ -106,12 +148,16 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onProviderEnabled(String provider) {
-
+		if (provider.equals(LocationManager.GPS_PROVIDER)) {
+			Log.i(TAG, "GPS enabled.");
+			setServiceLevel(LEVEL_GPS_ENABLED);
+		}
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		if (provider.equals(LocationManager.GPS_PROVIDER)) {
+			Log.i(TAG, "GPS disabled.");
 			setServiceLevel(LEVEL_GPS_NOT_ENABLED);
 		}
 	}
