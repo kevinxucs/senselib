@@ -30,6 +30,13 @@ public class LocationService implements LocationListener, StepListener {
 
 	public interface LocationServiceListener {
 
+		/**
+		 * Called when service level changed. Service level includes
+		 * LocationService.LEVEL_*.
+		 * 
+		 * @param level
+		 *            Service level.
+		 */
 		public void onServiceLevelChanged(int level);
 
 		public void onLocationChanged(Location location);
