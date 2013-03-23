@@ -26,14 +26,27 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	private StepDetectorCalculationThread mStepDetectorCalculationThread;
 
+	/**
+	 * Used for receiving step information.
+	 */
 	public interface StepListener {
 
+		/**
+		 * Called when a step is detected.
+		 */
 		public void onStep();
 
-		// In world's coordinate system, where X is tangential to the ground at
-		// the device's current location and points towards the magnetic North
-		// Pole, Z points towards the sky and is perpendicular to the ground,
-		// and X is defined as the vector product Y·Z
+		/**
+		 * Called when there is a new movement data (not necessarily a step).
+		 * Values passed are in world's coordinate system, where Y is tangential
+		 * to the ground at the device's current location and points towards the
+		 * magnetic North Pole, Z points towards the sky and is perpendicular to
+		 * the ground, and X is defined as the vector product Y·Z.
+		 * 
+		 * @param values
+		 *            array of float with length 3. X has index 0, Y has index
+		 *            1, and Z has index 2.
+		 */
 		public void onMovement(float[] values);
 
 	}
