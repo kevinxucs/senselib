@@ -10,6 +10,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+/**
+ * Class for providing orientation information. start() and stop() must be 
+ * explicitly called to start and stop the internal thread.
+ * 
+ * @author Kaiwen Xu
+ */
 public class OrientationService implements SensorEventListener {
 
 	private static final String TAG = "SensorService";

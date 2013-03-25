@@ -11,6 +11,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+/**
+ * Class for providing location information. start() and stop() must be
+ * explicitly called to start and stop the internal thread.
+ * 
+ * @author Kaiwen Xu
+ */
 public class LocationService implements LocationListener, StepListener {
 
 	private static final String TAG = "LocationService";

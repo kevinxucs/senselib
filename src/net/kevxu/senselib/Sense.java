@@ -2,6 +2,15 @@ package net.kevxu.senselib;
 
 import android.content.Context;
 
+/**
+ * Manager class. Makes sure only one instance of LocationService, 
+ * OrientationService and StepDetector is created. Use get*Instance() methods
+ * to get an instance of the service you needed, register your listener, then
+ * call start() to start the SenseLib. After SenseLib is no longer needed, 
+ * remember to call stop().
+ * 
+ * @author Kaiwen Xu
+ */
 public class Sense {
 
 	private Context mContext;
