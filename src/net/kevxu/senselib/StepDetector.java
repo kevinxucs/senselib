@@ -11,6 +11,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+/**
+ * Class for detecting user steps. start() and stop() must be explicitly called
+ * to start and stop the internal thread.
+ * 
+ * @author Kaiwen Xu
+ */
 public class StepDetector implements SensorEventListener, OrientationServiceListener {
 
 	private static final String TAG = "StepDetector";

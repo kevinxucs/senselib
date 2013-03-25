@@ -108,7 +108,6 @@ public class OrientationService implements SensorEventListener {
 		Log.i(TAG, "OrientationService stopped.");
 	}
 
-	@SuppressWarnings("unused")
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
 		private float[] R;
