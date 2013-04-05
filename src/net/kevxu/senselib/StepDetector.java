@@ -161,13 +161,12 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 			super(interval);
 
 			this.limit = limit;
+			this.linearAccel = new float[3];
+			this.gravity = new float[3];
+			this.rotationMatrix = new float[9];
 		}
 
 		public synchronized void pushLinearAccel(float[] values) {
-			if (linearAccel == null) {
-				linearAccel = new float[3];
-			}
-
 			System.arraycopy(values, 0, linearAccel, 0, 3);
 			// for (int i = 0; i < 3; i++) {
 			// linearAccel[i] = values[i];
@@ -175,10 +174,6 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		}
 
 		public synchronized void pushGravity(float[] values) {
-			if (gravity == null) {
-				gravity = new float[3];
-			}
-
 			System.arraycopy(values, 0, gravity, 0, 3);
 			// for (int i = 0; i < 3; i++) {
 			// gravity[i] = values[i];
@@ -186,10 +181,6 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 		}
 
 		public synchronized void pushRotationMatrix(float[] R) {
-			if (rotationMatrix == null) {
-				rotationMatrix = new float[9];
-			}
-
 			System.arraycopy(R, 0, rotationMatrix, 0, 9);
 			// for (int i = 0; i < 9; i++) {
 			// rotationMatrix[i] = R[i];

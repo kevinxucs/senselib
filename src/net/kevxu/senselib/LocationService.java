@@ -111,6 +111,7 @@ public class LocationService implements LocationListener, StepListener {
 	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
 
 		private Location gpsLocation;
+		private float[] aiwcs;
 
 		public LocationServiceFusionThread() {
 			this(DEFAULT_INTERVAL);
@@ -118,6 +119,8 @@ public class LocationService implements LocationListener, StepListener {
 
 		public LocationServiceFusionThread(long interval) {
 			super(interval);
+			
+			aiwcs = new float[3];
 		}
 
 		public synchronized void pushGPSLocation(Location location) {
@@ -130,6 +133,14 @@ public class LocationService implements LocationListener, StepListener {
 
 		public synchronized Location getGPSLocation() {
 			return gpsLocation;
+		}
+		
+		public synchronized void pushStep() {
+			
+		}
+		
+		public synchronized void pushMovement(float[] aiwcs) {
+			System.arraycopy(aiwcs, 0, this.aiwcs, 0, 3);
 		}
 
 		@Override
@@ -176,7 +187,7 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
+		
 
 	}
 
@@ -203,14 +214,14 @@ public class LocationService implements LocationListener, StepListener {
 	@Override
 	public void onStep() {
 		synchronized (this) {
-
+			
 		}
 	}
 
 	@Override
 	public void onMovement(float[] values) {
 		synchronized (this) {
-
+			
 		}
 	}
 
