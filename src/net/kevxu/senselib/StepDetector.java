@@ -171,23 +171,14 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 		public synchronized void pushLinearAccel(float[] values) {
 			System.arraycopy(values, 0, linearAccel, 0, 3);
-			// for (int i = 0; i < 3; i++) {
-			// linearAccel[i] = values[i];
-			// }
 		}
 
 		public synchronized void pushGravity(float[] values) {
 			System.arraycopy(values, 0, gravity, 0, 3);
-			// for (int i = 0; i < 3; i++) {
-			// gravity[i] = values[i];
-			// }
 		}
 
 		public synchronized void pushRotationMatrix(float[] R) {
 			System.arraycopy(R, 0, rotationMatrix, 0, 9);
-			// for (int i = 0; i < 9; i++) {
-			// rotationMatrix[i] = R[i];
-			// }
 		}
 
 		public synchronized float[] getLinearAccel() {
