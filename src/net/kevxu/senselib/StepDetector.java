@@ -266,16 +266,20 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 	}
 
-	public void addListener(StepListener stepListener) {
+	public StepDetector addListener(StepListener stepListener) {
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
+			
+			return this;
 		} else {
 			throw new NullPointerException("StepListener is null.");
 		}
 	}
 
-	protected void removeListeners() {
+	protected StepDetector removeListeners() {
 		mStepListeners.clear();
+		
+		return this;
 	}
 
 	@Override

@@ -182,16 +182,20 @@ public class OrientationService implements SensorEventListener {
 
 	}
 
-	public void addListener(OrientationServiceListener orientationServiceListener) {
+	public OrientationService addListener(OrientationServiceListener orientationServiceListener) {
 		if (orientationServiceListener != null) {
 			mOrientationServiceListeners.add(orientationServiceListener);
+			
+			return this;
 		} else {
 			throw new NullPointerException("OrientationServiceListener is null.");
 		}
 	}
 
-	protected void removeListeners() {
+	protected OrientationService removeListeners() {
 		mOrientationServiceListeners.clear();
+		
+		return this;
 	}
 
 	@Override

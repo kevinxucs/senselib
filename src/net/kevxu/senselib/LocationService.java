@@ -146,7 +146,6 @@ public class LocationService implements LocationListener, StepListener {
 		@Override
 		public void run() {
 			while (!isTerminated()) {
-
 				try {
 					Thread.sleep(getInterval());
 				} catch (InterruptedException e) {
@@ -157,16 +156,20 @@ public class LocationService implements LocationListener, StepListener {
 
 	}
 
-	public void addListener(LocationServiceListener locationServiceListener) {
+	public LocationService addListener(LocationServiceListener locationServiceListener) {
 		if (locationServiceListener != null) {
 			mLocationServiceListeners.add(locationServiceListener);
+			
+			return this;
 		} else {
 			throw new NullPointerException("LocationServiceListener is null.");
 		}
 	}
 
-	protected void removeListeners() {
+	protected LocationService removeListeners() {
 		mLocationServiceListeners.clear();
+		
+		return this;
 	}
 
 	private synchronized void setServiceLevel(int serviceLevel) {
