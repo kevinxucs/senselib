@@ -38,9 +38,12 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	public interface StepListener {
 
 		/**
-		 * Called when a step is detected.
+		 * Called when a step is detected. Movement values is passed exactly
+		 * same as those in onMovement.
+		 * 
+		 * @param values same values passed in onMovement.
 		 */
-		public void onStep();
+		public void onStep(float[] values);
 
 		/**
 		 * Called when there is a new movement data (not necessarily a step).
@@ -255,8 +258,9 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 
 					for (StepListener listener : mStepListeners) {
 						if (step) {
-							listener.onStep();
+							listener.onStep(aiwcs);
 						}
+						
 						listener.onMovement(aiwcs);
 					}
 				}

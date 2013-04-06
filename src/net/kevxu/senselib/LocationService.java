@@ -212,7 +212,7 @@ public class LocationService implements LocationListener, StepListener {
 	}
 
 	@Override
-	public void onStep() {
+	public void onStep(float[] values) {
 		synchronized (this) {
 			
 		}
@@ -220,9 +220,7 @@ public class LocationService implements LocationListener, StepListener {
 
 	@Override
 	public void onMovement(float[] values) {
-		synchronized (this) {
-			
-		}
+		// ignored
 	}
 
 }
