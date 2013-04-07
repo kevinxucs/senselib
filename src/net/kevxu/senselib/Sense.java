@@ -46,10 +46,31 @@ public class Sense {
 	private StepDetector mStepDetector;
 	private LocationService mLocationService;
 	
+	/**
+	 * Constructor for SenseLib. Enable all services available.
+	 * 
+	 * @param context Context.
+	 * @throws SensorNotAvailableException
+	 * 				If sensor required by a specific service is not present,
+	 * 				SensorNotAvailableException will be thrown. 
+	 */
 	public Sense(Context context) throws SensorNotAvailableException {
 		this(context, SERVICE_ALL);
 	}
 	
+	/**
+	 * Constructor for SenseLib. Choose the services you want to enable.
+	 * 
+	 * @param context Context.
+	 * @param services
+	 * 				Bitmask argument. Choose the services you want to enable.
+	 * 				For example, if you want to enable orientation service and
+	 * 				location service, you can pass the argument as
+	 * 				SERVICE_ORIENTATION|SERVICE_LOCATION.
+	 * @throws SensorNotAvailableException
+	 * 				If sensor required by a specific service is not present,
+	 * 				SensorNotAvailableException will be thrown. 
+	 */
 	public Sense(Context context, int services) throws SensorNotAvailableException {
 		mContext = context;
 		mServices = new ArrayList<SensorService>();
