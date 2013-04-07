@@ -118,5 +118,11 @@ public class Sense {
 	public LocationService getLocationServiceInstance() {
 		return mLocationService;
 	}
+	
+	// Clean up if you forgot to do it.
+	@Override
+	protected void finalize() {
+		stop();
+	}
 
 }
