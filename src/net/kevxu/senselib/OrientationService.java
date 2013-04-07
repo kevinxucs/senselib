@@ -47,9 +47,12 @@ public class OrientationService extends SensorService implements SensorEventList
 
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
 		List<Sensor> magneticFieldSensor = mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+		
+		int notAvailabelSensors = 0;
 
 		if (gravitySensors.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
+			// Gravity sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_GRAVITY;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
@@ -57,11 +60,17 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 
 		if (magneticFieldSensor.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_MAGNETIC_FIELD);
+			// Magnetic Field sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_MAGNETIC_FIELD;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
 			mMagneticFieldSensor = magneticFieldSensor.get(0);
+		}
+		
+		if (notAvailabelSensors != 0) {
+			// Some sensors are not available
+			throw new SensorNotAvailableException(notAvailabelSensors, "Orientation Service");
 		}
 
 		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();

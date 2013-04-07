@@ -73,9 +73,12 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 
 		List<Sensor> liearAccelSensors = mSensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+		
+		int notAvailabelSensors = 0;
 
 		if (liearAccelSensors.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_LINEAR_ACCELERATION);
+			// Linear Acceleration sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_LINEAR_ACCELERATION;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
@@ -83,11 +86,17 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 		}
 
 		if (gravitySensors.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
+			// Gravity sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_GRAVITY;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
 			mGravitySensor = gravitySensors.get(0);
+		}
+		
+		if (notAvailabelSensors != 0) {
+			// Some sensors are not available
+			throw new SensorNotAvailableException(notAvailabelSensors, "StepDetector");
 		}
 
 		mStepListeners = new ArrayList<StepListener>();

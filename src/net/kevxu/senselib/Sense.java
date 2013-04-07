@@ -119,7 +119,7 @@ public class Sense {
 		return mLocationService;
 	}
 	
-	// Clean up if you forgot to do it.
+	// Clean up if you forgot to do so.
 	@Override
 	protected void finalize() {
 		stop();
