@@ -2,28 +2,18 @@ package net.kevxu.senselib;
 
 public class SensorNotAvailableException extends Exception {
 
-	private static final long serialVersionUID = -6765170814665943123L;
-
+	private static final long serialVersionUID = 478622764394890148L;
+	
 	private int mSensorType;
-
-	public SensorNotAvailableException() {
-		super();
-	}
 
 	public SensorNotAvailableException(int sensorType) {
 		this.mSensorType = sensorType;
 	}
 
-	public SensorNotAvailableException(String detailMessage) {
+	public SensorNotAvailableException(int sensorType, String detailMessage) {
 		super(detailMessage);
-	}
-
-	public SensorNotAvailableException(Throwable throwable) {
-		super(throwable);
-	}
-
-	public SensorNotAvailableException(String detailMessage, Throwable throwable) {
-		super(detailMessage, throwable);
+		
+		this.mSensorType = sensorType;
 	}
 
 	public int getSensorType() {

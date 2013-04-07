@@ -63,7 +63,7 @@ public class Sense {
 	 * 
 	 * @param context Context.
 	 * @param services
-	 * 				Bitmask argument. Choose the services you want to enable.
+	 * 				Bit masked argument. Choose the services you want to enable.
 	 * 				For example, if you want to enable orientation service and
 	 * 				location service, you can pass the argument as
 	 * 				SERVICE_ORIENTATION|SERVICE_LOCATION.
