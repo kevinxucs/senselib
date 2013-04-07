@@ -295,7 +295,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// Not implemented
+		// Not used.
 	}
 
 	@Override
@@ -324,7 +324,6 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 	@Override
 	public void onMagneticFieldChanged(float[] values) {
 		// Not used.
-
 	}
 
 }

@@ -226,6 +226,6 @@ public class OrientationService extends SensorService implements SensorEventList
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// Not implemented
+		// Not used
 	}
 }

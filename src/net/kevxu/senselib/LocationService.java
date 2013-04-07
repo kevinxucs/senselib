@@ -225,7 +225,7 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	public void onMovement(float[] values) {
-		// ignored
+		// Not used
 	}
 
 }
