@@ -144,7 +144,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
 		private static final long DEFAULT_INTERVAL = 80;
-		private static final float DEFAULT_LIMIT = 1.0F;
+		private static final float DEFAULT_LIMIT = 0.87F;
 
 		private final float limit;
 
