@@ -17,7 +17,7 @@ import android.util.Log;
  * 
  * @author Kaiwen Xu
  */
-public class LocationService implements LocationListener, StepListener {
+public class LocationService extends SensorService implements LocationListener, StepListener {
 
 	private static final String TAG = "LocationService";
 
@@ -70,6 +70,7 @@ public class LocationService implements LocationListener, StepListener {
 	/**
 	 * Call this when resume.
 	 */
+	@Override
 	protected void start() {
 		if (mLocationServiceFusionThread == null) {
 			mLocationServiceFusionThread = new LocationServiceFusionThread();
@@ -90,6 +91,7 @@ public class LocationService implements LocationListener, StepListener {
 	/**
 	 * Call this when pause.
 	 */
+	@Override
 	protected void stop() {
 		mLocationServiceFusionThread.terminate();
 		Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");

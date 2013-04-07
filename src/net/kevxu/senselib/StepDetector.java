@@ -17,7 +17,7 @@ import android.util.Log;
  * 
  * @author Kaiwen Xu
  */
-public class StepDetector implements SensorEventListener, OrientationServiceListener {
+public class StepDetector extends SensorService implements SensorEventListener, OrientationServiceListener {
 
 	private static final String TAG = "StepDetector";
 
@@ -100,6 +100,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	/**
 	 * Call this when resume.
 	 */
+	@Override
 	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
 			mStepDetectorCalculationThread = new StepDetectorCalculationThread();
@@ -123,6 +124,7 @@ public class StepDetector implements SensorEventListener, OrientationServiceList
 	/**
 	 * Call this when pause.
 	 */
+	@Override
 	protected void stop() {
 		mStepDetectorCalculationThread.terminate();
 		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");

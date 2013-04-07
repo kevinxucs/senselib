@@ -16,7 +16,7 @@ import android.util.Log;
  * 
  * @author Kaiwen Xu
  */
-public class OrientationService implements SensorEventListener {
+public class OrientationService extends SensorService implements SensorEventListener {
 
 	private static final String TAG = "SensorService";
 
@@ -74,6 +74,7 @@ public class OrientationService implements SensorEventListener {
 	/**
 	 * Call this when resume.
 	 */
+	@Override
 	protected void start() {
 		if (mOrientationSensorThread == null) {
 			mOrientationSensorThread = new OrientationSensorThread();
@@ -97,6 +98,7 @@ public class OrientationService implements SensorEventListener {
 	/**
 	 * Call this when pause.
 	 */
+	@Override
 	protected void stop() {
 		mOrientationSensorThread.terminate();
 		Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
