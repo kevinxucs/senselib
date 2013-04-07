@@ -131,6 +131,11 @@ public class LocationService extends SensorService implements LocationListener, 
 			} else {
 				gpsLocation.set(location);
 			}
+			
+			// Debug
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onLocationChanged(gpsLocation);
+			}
 		}
 
 		public synchronized Location getGPSLocation() {
