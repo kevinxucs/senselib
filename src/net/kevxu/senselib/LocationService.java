@@ -117,9 +117,13 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@SuppressWarnings("unused")
 	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
+		
+		private static final float ACCEPTABLE_ACCURACY = 15.0F;
 
 		private Location gpsLocation;
 		private float[] aiwcs;
+		
+		private volatile long steps;
 
 		public LocationServiceFusionThread() {
 			this(DEFAULT_INTERVAL);
@@ -144,17 +148,24 @@ public class LocationService extends SensorService implements LocationListener, 
 			}
 		}
 
-		public synchronized Location getGPSLocation() {
+		private synchronized Location getGPSLocation() {
 			return gpsLocation;
 		}
 		
 		public synchronized void pushStep(float[] aiwcs) {
+			steps++;
+			
 			System.arraycopy(aiwcs, 0, this.aiwcs, 0, 3);
 		}
 
 		@Override
 		public void run() {
 			while (!isTerminated()) {
+				Location currentLocation = getGPSLocation();
+				if (currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
+					
+				}
+				
 				try {
 					Thread.sleep(getInterval());
 				} catch (InterruptedException e) {
