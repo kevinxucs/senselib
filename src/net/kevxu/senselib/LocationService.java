@@ -174,18 +174,30 @@ public class LocationService extends SensorService implements LocationListener, 
 				Location currentLocation = getGPSLocation();
 				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
 					if (initialFix && locationFix != null && steps - previousSteps > 0) {
-						long stepsTaken = steps - previousSteps;
+						long stepsWalked = steps - previousSteps;
+						float distanceWalked = stepsWalked * CONSTANT_AVERAGE_STEP_DISTANCE;
 						
+						if (distanceWalked >= locationFix.getAccuracy()) {
+							// Walk out of current location accuracy range
+							previousSteps = steps;
+							locationFix.set(currentLocation);
+							
+							setLocation(locationFix);
+						}
 					}
 					
 					if (!initialFix && locationFix == null) {
 						locationFix = new Location(currentLocation);
 						initialFix = true;
 						previousSteps = steps;
+						
+						setLocation(locationFix);
 					} else if (!initialFix) {
 						locationFix.set(currentLocation);
 						initialFix = true;
 						previousSteps = steps;
+						
+						setLocation(locationFix);
 					}
 				}
 				
@@ -220,6 +232,14 @@ public class LocationService extends SensorService implements LocationListener, 
 			mServiceLevel = serviceLevel;
 			for (LocationServiceListener listener : mLocationServiceListeners) {
 				listener.onServiceLevelChanged(mServiceLevel);
+			}
+		}
+	}
+	
+	private synchronized void setLocation(Location location) {
+		if (location != null) {
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onLocationChanged(location);
 			}
 		}
 	}
