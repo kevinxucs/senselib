@@ -127,6 +127,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		
 		// Internal data
 		private boolean initialFix = false;
+		private Location locationFix;
 		private long previousSteps = 0;
 
 		public LocationServiceFusionThread() {
@@ -167,7 +168,19 @@ public class LocationService extends SensorService implements LocationListener, 
 			while (!isTerminated()) {
 				Location currentLocation = getGPSLocation();
 				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
+					if (initialFix && locationFix != null) {
+						
+					}
 					
+					if (!initialFix && locationFix == null) {
+						locationFix = new Location(currentLocation);
+						initialFix = true;
+						previousSteps = steps;
+					} else if (!initialFix) {
+						locationFix.set(currentLocation);
+						initialFix = true;
+						previousSteps = steps;
+					}
 				}
 				
 				try {
