@@ -24,9 +24,15 @@ public class LocationService extends SensorService implements LocationListener, 
 	public static int LEVEL_GPS_NOT_ENABLED = 0;
 	public static int LEVEL_GPS_ENABLED = 1;
 	
-	private static final long GPS_UPDATE_MIN_TIME = 500L;
-	private static final float GPS_UPDATE_MIN_DISTANCE = 0.7874F;
+	// Average step distance for human (in meters)
+	private static final float CONSTANT_AVERAGE_STEP_DISTANCE = 0.7874F;
+	
+	// Average step time for human (in meters)
+	private static final long CONSTANT_AVERGAE_STEP_TIME = 500L;
+	
 	private static final int GPS_UPDATE_MULTIPLIER = 1;
+	private static final long GPS_UPDATE_MIN_TIME = CONSTANT_AVERGAE_STEP_TIME * GPS_UPDATE_MULTIPLIER;
+	private static final float GPS_UPDATE_MIN_DISTANCE = CONSTANT_AVERAGE_STEP_DISTANCE * GPS_UPDATE_MULTIPLIER;
 
 	private Context mContext;
 	private LocationManager mLocationManager;
@@ -87,8 +93,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		}
 
 		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-				GPS_UPDATE_MIN_TIME * GPS_UPDATE_MULTIPLIER,
-				GPS_UPDATE_MIN_DISTANCE * GPS_UPDATE_MULTIPLIER, this);
+				GPS_UPDATE_MIN_TIME, GPS_UPDATE_MIN_DISTANCE, this);
 		Log.i(TAG, "GPS update registered.");
 
 		Log.i(TAG, "LocationService started.");
@@ -168,7 +173,8 @@ public class LocationService extends SensorService implements LocationListener, 
 			while (!isTerminated()) {
 				Location currentLocation = getGPSLocation();
 				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
-					if (initialFix && locationFix != null) {
+					if (initialFix && locationFix != null && steps - previousSteps > 0) {
+						long stepsTaken = steps - previousSteps;
 						
 					}
 					
