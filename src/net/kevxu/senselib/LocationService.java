@@ -23,6 +23,10 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	public static int LEVEL_GPS_NOT_ENABLED = 0;
 	public static int LEVEL_GPS_ENABLED = 1;
+	
+	private static final long GPS_UPDATE_MIN_TIME = 500L;
+	private static final float GPS_UPDATE_MIN_DISTANCE = 0.7874F;
+	private static final int GPS_UPDATE_MULTIPLIER = 5;
 
 	private Context mContext;
 	private LocationManager mLocationManager;
@@ -82,7 +86,9 @@ public class LocationService extends SensorService implements LocationListener, 
 			mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 		}
 
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500L, 0.0F, this);
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+				GPS_UPDATE_MIN_TIME * GPS_UPDATE_MULTIPLIER,
+				GPS_UPDATE_MIN_DISTANCE * GPS_UPDATE_MULTIPLIER, this);
 		Log.i(TAG, "GPS update registered.");
 
 		Log.i(TAG, "LocationService started.");
