@@ -120,7 +120,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		Log.i(TAG, "LocationService stopped.");
 	}
 
-	@SuppressWarnings("unused")
 	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
 		
 		private static final float ACCEPTABLE_ACCURACY = 15.0F;

@@ -151,7 +151,6 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 		Log.i(TAG, "StepDetector stopped.");
 	}
 
-	@SuppressWarnings("unused")
 	private final class StepDetectorCalculationThread extends AbstractSensorWorkerThread {
 
 		private static final long DEFAULT_INTERVAL = 80;
