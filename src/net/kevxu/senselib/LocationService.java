@@ -26,7 +26,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	
 	private static final long GPS_UPDATE_MIN_TIME = 500L;
 	private static final float GPS_UPDATE_MIN_DISTANCE = 0.7874F;
-	private static final int GPS_UPDATE_MULTIPLIER = 5;
+	private static final int GPS_UPDATE_MULTIPLIER = 1;
 
 	private Context mContext;
 	private LocationManager mLocationManager;
@@ -148,11 +148,7 @@ public class LocationService extends SensorService implements LocationListener, 
 			return gpsLocation;
 		}
 		
-		public synchronized void pushStep() {
-			
-		}
-		
-		public synchronized void pushMovement(float[] aiwcs) {
+		public synchronized void pushStep(float[] aiwcs) {
 			System.arraycopy(aiwcs, 0, this.aiwcs, 0, 3);
 		}
 
@@ -230,7 +226,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onStep(float[] values) {
 		synchronized (this) {
-			
+			mLocationServiceFusionThread.pushStep(values);
 		}
 	}
 
