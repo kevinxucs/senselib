@@ -107,7 +107,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 	}
 
 	/**
-	 * Call this when resume.
+	 * Call this when start or resume.
 	 */
 	@Override
 	protected void start() {

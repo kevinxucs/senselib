@@ -81,7 +81,7 @@ public class OrientationService extends SensorService implements SensorEventList
 	}
 
 	/**
-	 * Call this when resume.
+	 * Call this when start or resume.
 	 */
 	@Override
 	protected void start() {

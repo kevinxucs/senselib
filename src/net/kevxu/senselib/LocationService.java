@@ -68,7 +68,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	}
 
 	/**
-	 * Call this when resume.
+	 * Call this when start or resume.
 	 */
 	@Override
 	protected void start() {
@@ -82,7 +82,7 @@ public class LocationService extends SensorService implements LocationListener, 
 			mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 		}
 
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500L, 0.0F, this);
 		Log.i(TAG, "GPS update registered.");
 
 		Log.i(TAG, "LocationService started.");
