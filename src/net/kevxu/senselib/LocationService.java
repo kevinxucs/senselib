@@ -120,10 +120,14 @@ public class LocationService extends SensorService implements LocationListener, 
 		
 		private static final float ACCEPTABLE_ACCURACY = 15.0F;
 
+		// Variables for accepting data from outside
 		private Location gpsLocation;
 		private float[] aiwcs;
+		private volatile long steps = 0;
 		
-		private volatile long steps;
+		// Internal data
+		private boolean initialFix = false;
+		private long previousSteps = 0;
 
 		public LocationServiceFusionThread() {
 			this(DEFAULT_INTERVAL);
@@ -162,7 +166,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		public void run() {
 			while (!isTerminated()) {
 				Location currentLocation = getGPSLocation();
-				if (currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
+				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
 					
 				}
 				
