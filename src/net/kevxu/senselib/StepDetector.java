@@ -41,7 +41,8 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 		 * Called when a step is detected. Movement values is passed exactly
 		 * same as those in onMovement.
 		 * 
-		 * @param values same values passed in onMovement.
+		 * @param values same values passed in 
+		 * {@link StepListener#onMovement(float[])}.
 		 */
 		public void onStep(float[] values);
 
@@ -309,6 +310,11 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onRotationChanged(float[] values) {
+		// Not used.
 	}
 
 	@Override

@@ -30,7 +30,62 @@ public class OrientationService extends SensorService implements SensorEventList
 	private OrientationSensorThread mOrientationSensorThread;
 
 	public interface OrientationServiceListener {
+		
+		/**
+		 * Called when rotation changes.
+		 * <p>
+		 * Values are defined as following:<br>
+		 * values[0]: azimuth, rotation around the Z axis.<br>
+		 * values[1]: pitch, rotation around the X axis.<br>
+		 * values[2]: roll, rotation around the Y axis.
+		 * <p>
+		 * The reference coordinate system is defined as following:<br>
+		 * X is defined as the vector product Y·Z.<br>
+		 * Y is tangential to the ground at the device's current location and 
+		 * points towards the magnetic North Pole.<br>
+		 * Z points towards the center of the Earth and is perpendicular to the 
+		 * ground.
+		 * <p>
+		 * All three angles above are in radians and positive in the 
+		 * counter-clockwise direction.
+		 * <p>
+		 * Notice that the reference coordinate system is different from the one
+		 * used in 
+		 * {@link OrientationServiceListener#onRotationMatrixChanged(float[], float[])}.
+		 * 
+		 * @param values array of float with length 3.
+		 */
+		public void onRotationChanged(float[] values);
 
+		/**
+		 * Called when rotation changes.
+		 * <p>
+		 * R is rotation matrix, I is inclination 
+		 * matrix. Both matrices transform a vector into world coordinate 
+		 * system which defined as following. X is defined as the vector product
+		 * Y·Z, Y is tangential to the ground at the device's current location 
+		 * and points towards the magnetic North Pole and Z points towards the 
+		 * sky and is perpendicular to the ground.
+		 * <p>
+		 * By definition, <br>
+		 * [0 0 g] = R * gravity (g = magnitude of gravity)<br>
+		 * [0 m 0] = I * R * geomagnetic (m = magnitude of geomagnetic * field)
+		 * <p>
+		 * R is the identity matrix when the device is aligned with the world's 
+		 * coordinate system, that is, when the device's X axis points toward 
+		 * East, the Y axis points to the North Pole and the device is facing 
+		 * the sky.
+		 * <p>
+		 * I is a rotation matrix transforming the geomagnetic vector into the 
+		 * same coordinate space as gravity (the world's coordinate space). 
+		 * I is a simple rotation around the X axis.
+		 * <p>
+		 * Notice that the world coordinate system is different from the one 
+		 * used in {@link OrientationServiceListener#onRotationChanged(float[])}.
+		 * 
+		 * @param R 3 × 3 rotation matrix.
+		 * @param I 3 × 3 inclination matrix.
+		 */
 		public void onRotationMatrixChanged(float[] R, float[] I);
 
 		public void onMagneticFieldChanged(float[] values);
