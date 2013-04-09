@@ -83,8 +83,8 @@ public class OrientationService extends SensorService implements SensorEventList
 		 * Notice that the world coordinate system is different from the one 
 		 * used in {@link OrientationServiceListener#onOrientationChanged(float[])}.
 		 * 
-		 * @param R 3 × 3 rotation matrix.
-		 * @param I 3 × 3 inclination matrix.
+		 * @param R 3 x 3 rotation matrix.
+		 * @param I 3 x 3 inclination matrix.
 		 */
 		public void onRotationMatrixChanged(float[] R, float[] I);
 
