@@ -47,7 +47,7 @@ public class Sense {
 	private LocationService mLocationService;
 	
 	/**
-	 * Constructor for SenseLib. Enable all services available.
+	 * Constructor for SenseLib. Enable all available services.
 	 * 
 	 * @param context Context.
 	 * @throws SensorNotAvailableException
@@ -91,6 +91,9 @@ public class Sense {
 		}
 	}
 
+	/**
+	 * Call to start all the services you chose.
+	 */
 	public void start() {
 		for (SensorService service : mServices) {
 			if (service != null) {
@@ -99,6 +102,9 @@ public class Sense {
 		}
 	}
 
+	/**
+	 * Call to stop all the services you chose.
+	 */
 	public void stop() {
 		for (SensorService service : mServices) {
 			if (service != null) {
