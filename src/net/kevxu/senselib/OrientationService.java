@@ -55,7 +55,7 @@ public class OrientationService extends SensorService implements SensorEventList
 		 * 
 		 * @param values array of float with length 3.
 		 */
-		public void onRotationChanged(float[] values);
+		public void onOrientationChanged(float[] values);
 
 		/**
 		 * Called when rotation changes.
@@ -81,7 +81,7 @@ public class OrientationService extends SensorService implements SensorEventList
 		 * I is a simple rotation around the X axis.
 		 * <p>
 		 * Notice that the world coordinate system is different from the one 
-		 * used in {@link OrientationServiceListener#onRotationChanged(float[])}.
+		 * used in {@link OrientationServiceListener#onOrientationChanged(float[])}.
 		 * 
 		 * @param R 3 × 3 rotation matrix.
 		 * @param I 3 × 3 inclination matrix.
@@ -182,10 +182,12 @@ public class OrientationService extends SensorService implements SensorEventList
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
-		private float[] R;
-		private float[] I;
 		private float[] gravity;
 		private float[] geomagnetic;
+		
+		private float[] orientation;
+		private float[] R;
+		private float[] I;
 
 		public OrientationSensorThread() {
 			this(DEFAULT_INTERVAL);
@@ -194,6 +196,7 @@ public class OrientationService extends SensorService implements SensorEventList
 		public OrientationSensorThread(long interval) {
 			super(interval);
 
+			orientation = new float[3];
 			R = new float[9];
 			I = new float[9];
 		}
@@ -215,11 +218,11 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 
 		public synchronized float[] getGravity() {
-			return this.gravity;
+			return gravity;
 		}
 
 		public synchronized float[] getGeomagnetic() {
-			return this.geomagnetic;
+			return geomagnetic;
 		}
 
 		@Override
@@ -227,9 +230,11 @@ public class OrientationService extends SensorService implements SensorEventList
 			while (!isTerminated()) {
 				if (getGravity() != null && getGeomagnetic() != null) {
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
+					SensorManager.getOrientation(R, orientation);
 				}
 
 				for (OrientationServiceListener listener : mOrientationServiceListeners) {
+					listener.onOrientationChanged(orientation);
 					listener.onRotationMatrixChanged(R, I);
 
 					if (getGeomagnetic() != null) {

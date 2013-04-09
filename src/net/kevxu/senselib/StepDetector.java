@@ -313,10 +313,10 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 	}
 
 	@Override
-	public void onRotationChanged(float[] values) {
+	public void onOrientationChanged(float[] values) {
 		// Not used.
 	}
-
+	
 	@Override
 	public void onRotationMatrixChanged(float[] R, float[] I) {
 		synchronized (this) {
@@ -325,7 +325,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 			}
 		}
 	}
-
+	
 	@Override
 	public void onMagneticFieldChanged(float[] values) {
 		// Not used.
