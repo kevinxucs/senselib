@@ -27,7 +27,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	// Average step distance for human (in meters)
 	private static final float CONSTANT_AVERAGE_STEP_DISTANCE = 0.7874F;
 	
-	// Average step time for human (in meters)
+	// Average step time for human (in milliseconds)
 	private static final long CONSTANT_AVERGAE_STEP_TIME = 500L;
 	
 	private static final int GPS_UPDATE_MULTIPLIER = 1;
