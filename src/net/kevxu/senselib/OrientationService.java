@@ -88,6 +88,14 @@ public class OrientationService extends SensorService implements SensorEventList
 		 */
 		public void onRotationMatrixChanged(float[] R, float[] I);
 
+		/**
+		 * Called when magnetic field changes.
+		 * <p>
+		 * values[0], values[1] and values[2] represents the magnetic field 
+		 * along the x, y and z axis correspondingly. The unit is uT.
+		 * 
+		 * @param values array of float length of 3.
+		 */
 		public void onMagneticFieldChanged(float[] values);
 
 	}
