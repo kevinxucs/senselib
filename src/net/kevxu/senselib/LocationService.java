@@ -181,6 +181,7 @@ public class LocationService extends SensorService implements LocationListener, 
 							previousSteps = steps;
 							locationFix.set(currentLocation);
 							
+							// Call listener
 							setLocation(locationFix);
 						}
 					}
