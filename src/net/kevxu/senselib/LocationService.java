@@ -51,10 +51,15 @@ public class LocationService extends SensorService implements LocationListener, 
 		 * LocationService.LEVEL_*.
 		 * 
 		 * @param level
-		 *            Service level.
+		 *            service level.
 		 */
 		public void onServiceLevelChanged(int level);
 
+		/**
+		 * Called when user's location has changed.
+		 * 
+		 * @param location location.
+		 */
 		public void onLocationChanged(Location location);
 
 	}
@@ -77,9 +82,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		mStepDetector.addListener(this);
 	}
 
-	/**
-	 * Call this when start or resume.
-	 */
 	@Override
 	protected void start() {
 		if (mLocationServiceFusionThread == null) {
@@ -99,9 +101,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		Log.i(TAG, "LocationService started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mLocationServiceFusionThread.terminate();
