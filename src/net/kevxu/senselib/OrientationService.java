@@ -30,9 +30,72 @@ public class OrientationService extends SensorService implements SensorEventList
 	private OrientationSensorThread mOrientationSensorThread;
 
 	public interface OrientationServiceListener {
+		
+		/**
+		 * Called when rotation changes.
+		 * <p>
+		 * Values are defined as following:<br>
+		 * values[0]: azimuth, rotation around the Z axis.<br>
+		 * values[1]: pitch, rotation around the X axis.<br>
+		 * values[2]: roll, rotation around the Y axis.
+		 * <p>
+		 * The reference coordinate system is defined as following:<br>
+		 * X is defined as the vector product Y·Z.<br>
+		 * Y is tangential to the ground at the device's current location and 
+		 * points towards the magnetic North Pole.<br>
+		 * Z points towards the center of the Earth and is perpendicular to the 
+		 * ground.
+		 * <p>
+		 * All three angles above are in radians and positive in the 
+		 * counter-clockwise direction.
+		 * <p>
+		 * Notice that the reference coordinate system is different from the one
+		 * used in 
+		 * {@link OrientationServiceListener#onRotationMatrixChanged(float[], float[])}.
+		 * 
+		 * @param values array of float with length 3.
+		 */
+		public void onOrientationChanged(float[] values);
 
+		/**
+		 * Called when rotation changes.
+		 * <p>
+		 * R is rotation matrix, I is inclination 
+		 * matrix. Both matrices transform a vector into world coordinate 
+		 * system which defined as following. X is defined as the vector product
+		 * Y·Z, Y is tangential to the ground at the device's current location 
+		 * and points towards the magnetic North Pole and Z points towards the 
+		 * sky and is perpendicular to the ground.
+		 * <p>
+		 * By definition, <br>
+		 * [0 0 g] = R * gravity (g = magnitude of gravity)<br>
+		 * [0 m 0] = I * R * geomagnetic (m = magnitude of geomagnetic * field)
+		 * <p>
+		 * R is the identity matrix when the device is aligned with the world's 
+		 * coordinate system, that is, when the device's X axis points toward 
+		 * East, the Y axis points to the North Pole and the device is facing 
+		 * the sky.
+		 * <p>
+		 * I is a rotation matrix transforming the geomagnetic vector into the 
+		 * same coordinate space as gravity (the world's coordinate space). 
+		 * I is a simple rotation around the X axis.
+		 * <p>
+		 * Notice that the world coordinate system is different from the one 
+		 * used in {@link OrientationServiceListener#onOrientationChanged(float[])}.
+		 * 
+		 * @param R 3 x 3 rotation matrix.
+		 * @param I 3 x 3 inclination matrix.
+		 */
 		public void onRotationMatrixChanged(float[] R, float[] I);
 
+		/**
+		 * Called when magnetic field changes.
+		 * <p>
+		 * values[0], values[1] and values[2] represents the magnetic field 
+		 * along the x, y and z axis correspondingly. The unit is uT.
+		 * 
+		 * @param values array of float length of 3.
+		 */
 		public void onMagneticFieldChanged(float[] values);
 
 	}
@@ -47,9 +110,12 @@ public class OrientationService extends SensorService implements SensorEventList
 
 		List<Sensor> gravitySensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
 		List<Sensor> magneticFieldSensor = mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+		
+		int notAvailabelSensors = 0;
 
 		if (gravitySensors.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_GRAVITY);
+			// Gravity sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_GRAVITY;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
@@ -57,11 +123,17 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 
 		if (magneticFieldSensor.size() == 0) {
-			throw new SensorNotAvailableException(Sensor.TYPE_MAGNETIC_FIELD);
+			// Magnetic Field sensor not available
+			notAvailabelSensors = notAvailabelSensors | Sensor.TYPE_MAGNETIC_FIELD;
 		} else {
 			// Assume the first in the list is the default sensor
 			// Assumption may not be true though
 			mMagneticFieldSensor = magneticFieldSensor.get(0);
+		}
+		
+		if (notAvailabelSensors != 0) {
+			// Some sensors are not available
+			throw new SensorNotAvailableException(notAvailabelSensors, "Orientation Service");
 		}
 
 		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();
@@ -71,9 +143,6 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 	}
 
-	/**
-	 * Call this when resume.
-	 */
 	@Override
 	protected void start() {
 		if (mOrientationSensorThread == null) {
@@ -95,9 +164,6 @@ public class OrientationService extends SensorService implements SensorEventList
 		Log.i(TAG, "OrientationService started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mOrientationSensorThread.terminate();
@@ -118,10 +184,12 @@ public class OrientationService extends SensorService implements SensorEventList
 
 	private final class OrientationSensorThread extends AbstractSensorWorkerThread {
 
-		private float[] R;
-		private float[] I;
 		private float[] gravity;
 		private float[] geomagnetic;
+		
+		private float[] orientation;
+		private float[] R;
+		private float[] I;
 
 		public OrientationSensorThread() {
 			this(DEFAULT_INTERVAL);
@@ -130,6 +198,7 @@ public class OrientationService extends SensorService implements SensorEventList
 		public OrientationSensorThread(long interval) {
 			super(interval);
 
+			orientation = new float[3];
 			R = new float[9];
 			I = new float[9];
 		}
@@ -151,11 +220,11 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 
 		public synchronized float[] getGravity() {
-			return this.gravity;
+			return gravity;
 		}
 
 		public synchronized float[] getGeomagnetic() {
-			return this.geomagnetic;
+			return geomagnetic;
 		}
 
 		@Override
@@ -163,9 +232,11 @@ public class OrientationService extends SensorService implements SensorEventList
 			while (!isTerminated()) {
 				if (getGravity() != null && getGeomagnetic() != null) {
 					SensorManager.getRotationMatrix(R, I, getGravity(), getGeomagnetic());
+					SensorManager.getOrientation(R, orientation);
 				}
 
 				for (OrientationServiceListener listener : mOrientationServiceListeners) {
+					listener.onOrientationChanged(orientation);
 					listener.onRotationMatrixChanged(R, I);
 
 					if (getGeomagnetic() != null) {
@@ -217,6 +288,6 @@ public class OrientationService extends SensorService implements SensorEventList
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// Not implemented
+		// Not used
 	}
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import android.content.Context;
 
 /**
- * Manager class. Makes sure only one instance of LocationService, 
- * OrientationService and StepDetector is created. Use get*Instance() methods
+ * Manager class. It makes sure only one instance of LocationService, 
+ * OrientationService and/or StepDetector is created. Use get*Instance() methods
  * to get an instance of the service you needed, register your listener, then
  * call start() to start the SenseLib. After SenseLib is no longer needed, 
  * remember to call stop().
@@ -47,7 +47,7 @@ public class Sense {
 	private LocationService mLocationService;
 	
 	/**
-	 * Constructor for SenseLib. Enable all services available.
+	 * Constructor for SenseLib. Enable all available services.
 	 * 
 	 * @param context Context.
 	 * @throws SensorNotAvailableException
@@ -91,6 +91,9 @@ public class Sense {
 		}
 	}
 
+	/**
+	 * Call to start all the services you chose.
+	 */
 	public void start() {
 		for (SensorService service : mServices) {
 			if (service != null) {
@@ -99,6 +102,9 @@ public class Sense {
 		}
 	}
 
+	/**
+	 * Call to stop all the services you chose.
+	 */
 	public void stop() {
 		for (SensorService service : mServices) {
 			if (service != null) {
@@ -117,6 +123,12 @@ public class Sense {
 
 	public LocationService getLocationServiceInstance() {
 		return mLocationService;
+	}
+	
+	// Clean up if you forgot to do so.
+	@Override
+	protected void finalize() {
+		stop();
 	}
 
 }

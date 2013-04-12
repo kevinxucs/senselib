@@ -23,6 +23,16 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	public static int LEVEL_GPS_NOT_ENABLED = 0;
 	public static int LEVEL_GPS_ENABLED = 1;
+	
+	// Average step distance for human (in meters)
+	private static final float CONSTANT_AVERAGE_STEP_DISTANCE = 0.7874F;
+	
+	// Average step time for human (in milliseconds)
+	private static final long CONSTANT_AVERGAE_STEP_TIME = 500L;
+	
+	private static final int GPS_UPDATE_MULTIPLIER = 1;
+	private static final long GPS_UPDATE_MIN_TIME = CONSTANT_AVERGAE_STEP_TIME * GPS_UPDATE_MULTIPLIER;
+	private static final float GPS_UPDATE_MIN_DISTANCE = CONSTANT_AVERAGE_STEP_DISTANCE * GPS_UPDATE_MULTIPLIER;
 
 	private Context mContext;
 	private LocationManager mLocationManager;
@@ -41,10 +51,15 @@ public class LocationService extends SensorService implements LocationListener, 
 		 * LocationService.LEVEL_*.
 		 * 
 		 * @param level
-		 *            Service level.
+		 *            service level.
 		 */
 		public void onServiceLevelChanged(int level);
 
+		/**
+		 * Called when user's location has changed.
+		 * 
+		 * @param location location.
+		 */
 		public void onLocationChanged(Location location);
 
 	}
@@ -67,9 +82,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		mStepDetector.addListener(this);
 	}
 
-	/**
-	 * Call this when resume.
-	 */
 	@Override
 	protected void start() {
 		if (mLocationServiceFusionThread == null) {
@@ -82,15 +94,13 @@ public class LocationService extends SensorService implements LocationListener, 
 			mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 		}
 
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0.0F, this);
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+				GPS_UPDATE_MIN_TIME, GPS_UPDATE_MIN_DISTANCE, this);
 		Log.i(TAG, "GPS update registered.");
 
 		Log.i(TAG, "LocationService started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mLocationServiceFusionThread.terminate();
@@ -109,11 +119,19 @@ public class LocationService extends SensorService implements LocationListener, 
 		Log.i(TAG, "LocationService stopped.");
 	}
 
-	@SuppressWarnings("unused")
 	private final class LocationServiceFusionThread extends AbstractSensorWorkerThread {
+		
+		private static final float ACCEPTABLE_ACCURACY = 15.0F;
 
+		// Variables for accepting data from outside
 		private Location gpsLocation;
 		private float[] aiwcs;
+		private volatile long steps = 0;
+		
+		// Internal data
+		private boolean initialFix = false;
+		private Location locationFix;
+		private long previousSteps = 0;
 
 		public LocationServiceFusionThread() {
 			this(DEFAULT_INTERVAL);
@@ -131,23 +149,64 @@ public class LocationService extends SensorService implements LocationListener, 
 			} else {
 				gpsLocation.set(location);
 			}
+			
+			// Debug
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onLocationChanged(gpsLocation);
+			}
 		}
 
-		public synchronized Location getGPSLocation() {
+		private synchronized Location getGPSLocation() {
 			return gpsLocation;
 		}
 		
-		public synchronized void pushStep() {
+		public synchronized void pushStep(float[] aiwcs) {
+			steps++;
 			
-		}
-		
-		public synchronized void pushMovement(float[] aiwcs) {
 			System.arraycopy(aiwcs, 0, this.aiwcs, 0, 3);
 		}
 
 		@Override
 		public void run() {
 			while (!isTerminated()) {
+				Location currentLocation = getGPSLocation();
+				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
+					// Acceptable GPS data
+					
+					if (initialFix && locationFix != null && steps - previousSteps > 0) {
+						// Steps walked since last fix
+						long stepsWalked = steps - previousSteps;
+						
+						float distanceWalked = stepsWalked * CONSTANT_AVERAGE_STEP_DISTANCE;
+						
+						if (distanceWalked >= locationFix.getAccuracy()) {
+							Log.i(TAG, "Walked out of accuracy");
+							
+							// Walk out of current location accuracy range
+							previousSteps = steps;
+							locationFix.set(currentLocation);
+							
+							// Call listener
+							setLocation(locationFix);
+						}
+					}
+					
+					// Initial fix
+					if (!initialFix && locationFix == null) {
+						locationFix = new Location(currentLocation);
+						initialFix = true;
+						previousSteps = steps;
+						
+						setLocation(locationFix);
+					} else if (!initialFix) {
+						locationFix.set(currentLocation);
+						initialFix = true;
+						previousSteps = steps;
+						
+						setLocation(locationFix);
+					}
+				}
+				
 				try {
 					Thread.sleep(getInterval());
 				} catch (InterruptedException e) {
@@ -182,6 +241,14 @@ public class LocationService extends SensorService implements LocationListener, 
 			}
 		}
 	}
+	
+	private synchronized void setLocation(Location location) {
+		if (location != null) {
+			for (LocationServiceListener listener : mLocationServiceListeners) {
+				listener.onLocationChanged(location);
+			}
+		}
+	}
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -192,8 +259,7 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		
-
+		// TODO
 	}
 
 	@Override
@@ -219,13 +285,13 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onStep(float[] values) {
 		synchronized (this) {
-			
+			mLocationServiceFusionThread.pushStep(values);
 		}
 	}
 
 	@Override
 	public void onMovement(float[] values) {
-		// ignored
+		// Not used
 	}
 
 }
