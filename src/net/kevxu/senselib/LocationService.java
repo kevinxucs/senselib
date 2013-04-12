@@ -77,9 +77,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		mStepDetector.addListener(this);
 	}
 
-	/**
-	 * Call this when start or resume.
-	 */
 	@Override
 	protected void start() {
 		if (mLocationServiceFusionThread == null) {
@@ -99,9 +96,6 @@ public class LocationService extends SensorService implements LocationListener, 
 		Log.i(TAG, "LocationService started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mLocationServiceFusionThread.terminate();

@@ -107,9 +107,6 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 		}
 	}
 
-	/**
-	 * Call this when start or resume.
-	 */
 	@Override
 	protected void start() {
 		if (mStepDetectorCalculationThread == null) {
@@ -131,9 +128,6 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 		Log.i(TAG, "StepDetector started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mStepDetectorCalculationThread.terminate();

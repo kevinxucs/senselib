@@ -143,9 +143,6 @@ public class OrientationService extends SensorService implements SensorEventList
 		}
 	}
 
-	/**
-	 * Call this when start or resume.
-	 */
 	@Override
 	protected void start() {
 		if (mOrientationSensorThread == null) {
@@ -167,9 +164,6 @@ public class OrientationService extends SensorService implements SensorEventList
 		Log.i(TAG, "OrientationService started.");
 	}
 
-	/**
-	 * Call this when pause.
-	 */
 	@Override
 	protected void stop() {
 		mOrientationSensorThread.terminate();
