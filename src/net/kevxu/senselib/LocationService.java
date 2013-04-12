@@ -51,10 +51,15 @@ public class LocationService extends SensorService implements LocationListener, 
 		 * LocationService.LEVEL_*.
 		 * 
 		 * @param level
-		 *            Service level.
+		 *            service level.
 		 */
 		public void onServiceLevelChanged(int level);
 
+		/**
+		 * Called when user's location has changed.
+		 * 
+		 * @param location location.
+		 */
 		public void onLocationChanged(Location location);
 
 	}
