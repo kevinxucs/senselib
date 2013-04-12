@@ -172,11 +172,17 @@ public class LocationService extends SensorService implements LocationListener, 
 			while (!isTerminated()) {
 				Location currentLocation = getGPSLocation();
 				if (currentLocation != null && currentLocation.hasAccuracy() && currentLocation.getAccuracy() <= ACCEPTABLE_ACCURACY) {
+					// Acceptable GPS data
+					
 					if (initialFix && locationFix != null && steps - previousSteps > 0) {
+						// Steps walked since last fix
 						long stepsWalked = steps - previousSteps;
+						
 						float distanceWalked = stepsWalked * CONSTANT_AVERAGE_STEP_DISTANCE;
 						
 						if (distanceWalked >= locationFix.getAccuracy()) {
+							Log.i(TAG, "Walked out of accuracy");
+							
 							// Walk out of current location accuracy range
 							previousSteps = steps;
 							locationFix.set(currentLocation);
@@ -186,6 +192,7 @@ public class LocationService extends SensorService implements LocationListener, 
 						}
 					}
 					
+					// Initial fix
 					if (!initialFix && locationFix == null) {
 						locationFix = new Location(currentLocation);
 						initialFix = true;
