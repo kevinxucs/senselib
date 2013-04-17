@@ -102,10 +102,10 @@ public class Sense {
 	
 	public static Sense getInstance() {
 		if (mSense == null) {
-			throw new RuntimeException("init() has to be called.");
-		} else {
-			return mSense;
+			throw new SenseServiceException("init() has to be called.");
 		}
+		
+		return mSense;
 	}
 	
 	/**
