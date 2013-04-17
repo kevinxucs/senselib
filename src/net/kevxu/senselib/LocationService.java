@@ -8,6 +8,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,8 +22,32 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	private static final String TAG = "LocationService";
 
-	public static int LEVEL_GPS_NOT_ENABLED = 0;
-	public static int LEVEL_GPS_ENABLED = 1;
+	/**
+	 * GPS disabled.
+	 */
+	public static int LEVEL_GPS_DISABLED = 0x0;
+	
+	/**
+	 * GPS just enabled without status information.
+	 */
+	public static int LEVEL_GPS_ENABLED = 0x1;
+	
+	/**
+	 * GPS already enabled but out of service, doesn't expect to be available
+	 * in the near future.
+	 */
+	public static int LEVEL_GPS_ENABLED_OUT_OF_SERVICE = 0x3;
+	
+	/**
+	 * GPS already enabled but temporarily unavailable, expect to be available
+	 * shortly.
+	 */
+	public static int LEVEL_GPS_ENABLED_TEMPORARILY_UNAVAILABLE = 0x5;
+	
+	/**
+	 * GPS already enabled and it's available.
+	 */
+	public static int LEVEL_GPS_ENABLED_AVAILABLE = 0x9;
 	
 	// Average step distance for human (in meters)
 	private static final float CONSTANT_AVERAGE_STEP_DISTANCE = 0.7874F;
@@ -259,7 +284,26 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO
+		synchronized (this) {
+			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+				switch (status) {
+				case LocationProvider.OUT_OF_SERVICE:
+					Log.i(TAG, "GPS out of service.");
+					setServiceLevel(LEVEL_GPS_ENABLED_OUT_OF_SERVICE);
+					break;
+				case LocationProvider.TEMPORARILY_UNAVAILABLE:
+					Log.i(TAG, "GPS temporarily unavailable.");
+					setServiceLevel(LEVEL_GPS_ENABLED_TEMPORARILY_UNAVAILABLE);
+					break;
+				case LocationProvider.AVAILABLE:
+					Log.i(TAG, "GPS available.");
+					setServiceLevel(LEVEL_GPS_ENABLED_AVAILABLE);
+					break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -277,7 +321,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		synchronized (this) {
 			if (provider.equals(LocationManager.GPS_PROVIDER)) {
 				Log.i(TAG, "GPS disabled.");
-				setServiceLevel(LEVEL_GPS_NOT_ENABLED);
+				setServiceLevel(LEVEL_GPS_DISABLED);
 			}
 		}
 	}
