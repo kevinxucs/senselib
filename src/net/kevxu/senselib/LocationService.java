@@ -30,7 +30,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	/**
 	 * GPS just enabled without status information.
 	 */
-	public static int LEVEL_GPS_ENABLED = 0x1;
+	// public static int LEVEL_GPS_ENABLED = 0x1;
 	
 	/**
 	 * GPS already enabled but out of service, doesn't expect to be available
@@ -278,7 +278,9 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onLocationChanged(Location location) {
 		synchronized (this) {
-			mLocationServiceFusionThread.pushGPSLocation(location);
+			if (mLocationServiceFusionThread != null) {
+				mLocationServiceFusionThread.pushGPSLocation(location);
+			}
 		}
 	}
 
@@ -308,12 +310,12 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		synchronized (this) {
-			if (provider.equals(LocationManager.GPS_PROVIDER)) {
-				Log.i(TAG, "GPS enabled.");
-				setServiceLevel(LEVEL_GPS_ENABLED);
-			}
-		}
+//		synchronized (this) {
+//			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+//				Log.i(TAG, "GPS enabled.");
+//				setServiceLevel(LEVEL_GPS_ENABLED);
+//			}
+//		}
 	}
 
 	@Override
@@ -329,7 +331,9 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onStep(float[] values) {
 		synchronized (this) {
-			mLocationServiceFusionThread.pushStep(values);
+			if (mLocationServiceFusionThread != null) {
+				mLocationServiceFusionThread.pushStep(values);
+			}
 		}
 	}
 
