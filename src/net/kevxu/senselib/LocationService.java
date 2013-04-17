@@ -274,6 +274,12 @@ public class LocationService extends SensorService implements LocationListener, 
 			}
 		}
 	}
+	
+	public static boolean isGPSEnabled(Context context) {
+		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		
+		return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+	}
 
 	@Override
 	public void onLocationChanged(Location location) {
