@@ -278,7 +278,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onLocationChanged(Location location) {
 		synchronized (this) {
-			if (mLocationServiceFusionThread != null) {
+			if (mLocationServiceFusionThread != null && !mLocationServiceFusionThread.isTerminated()) {
 				mLocationServiceFusionThread.pushGPSLocation(location);
 			}
 		}
@@ -331,7 +331,7 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onStep(float[] values) {
 		synchronized (this) {
-			if (mLocationServiceFusionThread != null) {
+			if (mLocationServiceFusionThread != null && !mLocationServiceFusionThread.isTerminated()) {
 				mLocationServiceFusionThread.pushStep(values);
 			}
 		}
