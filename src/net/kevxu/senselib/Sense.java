@@ -75,7 +75,11 @@ public class Sense {
 	private Sense(Context context, int services) throws SensorNotAvailableException {
 		mContext = context;
 		mServices = new ArrayList<SensorService>();
-
+		
+		initializeServices(services);
+	}
+	
+	public void initializeServices(int services) throws SensorNotAvailableException {
 		if ((services & SERVICE_ORIENTATION) == SERVICE_ORIENTATION && mOrientationService == null) {
 			mOrientationService = new OrientationService(mContext);
 			mServices.add(mOrientationService);
@@ -93,11 +97,15 @@ public class Sense {
 	}
 	
 	public static void init(Context context) throws SensorNotAvailableException {
-		mSense = new Sense(context);
+		init(context, SERVICE_ALL);
 	}
 	
 	public static void init(Context context, int services) throws SensorNotAvailableException {
-		mSense = new Sense(context, services);
+		if (mSense == null) {
+			mSense = new Sense(context, services);
+		} else {
+			mSense.initializeServices(services);
+		}
 	}
 	
 	public static Sense getInstance() {
@@ -138,6 +146,10 @@ public class Sense {
 			}
 		}
 	}
+	
+	public boolean hasOrientationSerivceInit() {
+		return mOrientationService != null;
+	}
 
 	public OrientationService getOrientationServiceInstance() {
 		if (mOrientationService == null) {
@@ -145,6 +157,10 @@ public class Sense {
 		}
 		
 		return mOrientationService;
+	}
+	
+	public boolean hasStepDetectorInit() {
+		return mStepDetector != null;
 	}
 
 	public StepDetector getStepDetectorInstance() {
@@ -155,6 +171,10 @@ public class Sense {
 		return mStepDetector;
 	}
 
+	public boolean hasLocationServiceInit() {
+		return mLocationService != null;
+	}
+	
 	public LocationService getLocationServiceInstance() {
 		if (mLocationService == null) {
 			throw new SenseServiceException("Location service has not been initialized.");
