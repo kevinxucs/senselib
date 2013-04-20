@@ -1,6 +1,6 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.kevxu.senselib.OrientationService.OrientationServiceListener;
@@ -100,7 +100,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 			throw new SensorNotAvailableException(notAvailabelSensors, "StepDetector");
 		}
 
-		mStepListeners = new ArrayList<StepListener>();
+		mStepListeners = new LinkedList<StepListener>();
 
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);

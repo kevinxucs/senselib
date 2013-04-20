@@ -1,6 +1,6 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
@@ -136,7 +136,7 @@ public class OrientationService extends SensorService implements SensorEventList
 			throw new SensorNotAvailableException(notAvailabelSensors, "Orientation Service");
 		}
 
-		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();
+		mOrientationServiceListeners = new LinkedList<OrientationServiceListener>();
 
 		if (orientationServiceListener != null) {
 			mOrientationServiceListeners.add(orientationServiceListener);

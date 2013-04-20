@@ -1,6 +1,6 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.kevxu.senselib.StepDetector.StepListener;
@@ -97,7 +97,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		mContext = context;
 		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
-		mLocationServiceListeners = new ArrayList<LocationServiceListener>();
+		mLocationServiceListeners = new LinkedList<LocationServiceListener>();
 
 		if (locationServiceListener != null) {
 			mLocationServiceListeners.add(locationServiceListener);
