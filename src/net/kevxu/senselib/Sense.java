@@ -79,8 +79,14 @@ public class Sense {
 		}
 		
 		if ((services & SERVICE_LOCATION) == SERVICE_LOCATION && mLocationService == null) {
+			// Initialze LocationService.
 			mLocationService = new LocationService(mContext, mStepDetector);
 			mServices.add(mLocationService);
+		} else if ((services & SERVICE_LOCATION) != SERVICE_LOCATION && mLocationService != null) {
+			// Remove LocationService.
+			mServices.remove(mLocationService);
+			mStepDetector.stop();
+			mStepDetector = null;
 		}
 	}
 	
