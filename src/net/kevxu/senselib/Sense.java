@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * Manager class. It makes sure only one instance of LocationService, 
@@ -15,6 +16,8 @@ import android.content.Context;
  * @author Kaiwen Xu
  */
 public class Sense {
+	
+	private static final String TAG = "Sense";
 	
 	/**
 	 * Orientation service.
@@ -87,6 +90,8 @@ public class Sense {
 			mStepDetector.stop();
 			mStepDetector = null;
 		}
+		
+		Log.i(TAG, "Enabled services: " + mServices);
 	}
 	
 	/**
