@@ -1,6 +1,29 @@
+/*
+ * Copyright (c) 2013 Kaiwen Xu
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to 
+ * deal in the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in 
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+ * IN THE SOFTWARE.
+ * 
+ */
+
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.kevxu.senselib.OrientationService.OrientationServiceListener;
@@ -100,7 +123,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 			throw new SensorNotAvailableException(notAvailabelSensors, "StepDetector");
 		}
 
-		mStepListeners = new ArrayList<StepListener>();
+		mStepListeners = new LinkedList<StepListener>();
 
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
@@ -130,15 +153,17 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 
 	@Override
 	protected void stop() {
-		mStepDetectorCalculationThread.terminate();
-		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
-		try {
-			mStepDetectorCalculationThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mStepDetectorCalculationThread != null) {
+			mStepDetectorCalculationThread.terminate();
+			Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
+			try {
+				mStepDetectorCalculationThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "StepDetectorCalculationThread stopped.");
+			mStepDetectorCalculationThread = null;
 		}
-		Log.i(TAG, "StepDetectorCalculationThread stopped.");
-		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");

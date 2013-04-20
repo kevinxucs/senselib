@@ -23,21 +23,23 @@
 
 package net.kevxu.senselib;
 
-/**
- * Base class for all the sensor services.
- * 
- * @author Kaiwen Xu
- */
-public abstract class SensorService {
-	
-	/**
-	 * Call this when start or resume.
-	 */
-	protected abstract void start();
-	
-	/**
-	 * Call this when pause.
-	 */
-	protected abstract void stop();
+public class SenseServiceException extends RuntimeException {
+
+	private static final long serialVersionUID = -2588075945458021L;
+
+	public SenseServiceException() {
+	}
+
+	public SenseServiceException(String detailMessage) {
+		super(detailMessage);
+	}
+
+	public SenseServiceException(Throwable throwable) {
+		super(throwable);
+	}
+
+	public SenseServiceException(String detailMessage, Throwable throwable) {
+		super(detailMessage, throwable);
+	}
 
 }

@@ -1,6 +1,29 @@
+/*
+ * Copyright (c) 2013 Kaiwen Xu
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to 
+ * deal in the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in 
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+ * IN THE SOFTWARE.
+ * 
+ */
+
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.kevxu.senselib.StepDetector.StepListener;
@@ -8,6 +31,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,8 +45,32 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	private static final String TAG = "LocationService";
 
-	public static int LEVEL_GPS_NOT_ENABLED = 0;
-	public static int LEVEL_GPS_ENABLED = 1;
+	/**
+	 * GPS disabled.
+	 */
+	public static int LEVEL_GPS_DISABLED = 0x0;
+	
+	/**
+	 * GPS just enabled without status information.
+	 */
+	public static int LEVEL_GPS_ENABLED = 0x1;
+	
+	/**
+	 * GPS already enabled but out of service, doesn't expect to be available
+	 * in the near future.
+	 */
+	public static int LEVEL_GPS_ENABLED_OUT_OF_SERVICE = 0x3;
+	
+	/**
+	 * GPS already enabled but temporarily unavailable, expect to be available
+	 * shortly.
+	 */
+	public static int LEVEL_GPS_ENABLED_TEMPORARILY_UNAVAILABLE = 0x5;
+	
+	/**
+	 * GPS already enabled and it's available.
+	 */
+	public static int LEVEL_GPS_ENABLED_AVAILABLE = 0x9;
 	
 	// Average step distance for human (in meters)
 	private static final float CONSTANT_AVERAGE_STEP_DISTANCE = 0.7874F;
@@ -72,7 +120,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		mContext = context;
 		mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
-		mLocationServiceListeners = new ArrayList<LocationServiceListener>();
+		mLocationServiceListeners = new LinkedList<LocationServiceListener>();
 
 		if (locationServiceListener != null) {
 			mLocationServiceListeners.add(locationServiceListener);
@@ -103,15 +151,17 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	protected void stop() {
-		mLocationServiceFusionThread.terminate();
-		Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");
-		try {
-			mLocationServiceFusionThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mLocationServiceFusionThread != null) {
+			mLocationServiceFusionThread.terminate();
+			Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");
+			try {
+				mLocationServiceFusionThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "LocationServiceFusionThread stoppped.");
+			mLocationServiceFusionThread = null;
 		}
-		Log.i(TAG, "LocationServiceFusionThread stoppped.");
-		mLocationServiceFusionThread = null;
 
 		mLocationManager.removeUpdates(this);
 		Log.i(TAG, "GPS update unregistered.");
@@ -249,17 +299,44 @@ public class LocationService extends SensorService implements LocationListener, 
 			}
 		}
 	}
+	
+	public static boolean isGPSEnabled(Context context) {
+		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		
+		return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+	}
 
 	@Override
 	public void onLocationChanged(Location location) {
 		synchronized (this) {
-			mLocationServiceFusionThread.pushGPSLocation(location);
+			if (mLocationServiceFusionThread != null && !mLocationServiceFusionThread.isTerminated()) {
+				mLocationServiceFusionThread.pushGPSLocation(location);
+			}
 		}
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO
+		synchronized (this) {
+			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+				switch (status) {
+				case LocationProvider.OUT_OF_SERVICE:
+					Log.i(TAG, "GPS out of service.");
+					setServiceLevel(LEVEL_GPS_ENABLED_OUT_OF_SERVICE);
+					break;
+				case LocationProvider.TEMPORARILY_UNAVAILABLE:
+					Log.i(TAG, "GPS temporarily unavailable.");
+					setServiceLevel(LEVEL_GPS_ENABLED_TEMPORARILY_UNAVAILABLE);
+					break;
+				case LocationProvider.AVAILABLE:
+					Log.i(TAG, "GPS available.");
+					setServiceLevel(LEVEL_GPS_ENABLED_AVAILABLE);
+					break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -277,7 +354,7 @@ public class LocationService extends SensorService implements LocationListener, 
 		synchronized (this) {
 			if (provider.equals(LocationManager.GPS_PROVIDER)) {
 				Log.i(TAG, "GPS disabled.");
-				setServiceLevel(LEVEL_GPS_NOT_ENABLED);
+				setServiceLevel(LEVEL_GPS_DISABLED);
 			}
 		}
 	}
@@ -285,7 +362,9 @@ public class LocationService extends SensorService implements LocationListener, 
 	@Override
 	public void onStep(float[] values) {
 		synchronized (this) {
-			mLocationServiceFusionThread.pushStep(values);
+			if (mLocationServiceFusionThread != null && !mLocationServiceFusionThread.isTerminated()) {
+				mLocationServiceFusionThread.pushStep(values);
+			}
 		}
 	}
 
