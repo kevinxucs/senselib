@@ -1,6 +1,7 @@
 package net.kevxu.senselib;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
@@ -49,20 +50,32 @@ public class Sense {
 	
 	private Sense(Context context, int services) throws SensorNotAvailableException {
 		mContext = context;
-		mServices = new ArrayList<SensorService>();
+		mServices = new LinkedList<SensorService>();
 		
 		initializeServices(services);
 	}
 	
 	private void initializeServices(int services) throws SensorNotAvailableException {
 		if ((services & SERVICE_ORIENTATION) == SERVICE_ORIENTATION && mOrientationService == null) {
+			// Initialize OrientationService.
 			mOrientationService = new OrientationService(mContext);
 			mServices.add(mOrientationService);
+		} else if ((services & SERVICE_ORIENTATION) != SERVICE_ORIENTATION && mOrientationService != null) {
+			// Remove OrientationService.
+			mServices.remove(mOrientationService);
+			mOrientationService.stop();
+			mOrientationService = null;
 		}
 		
 		if ((services & SERVICE_STEP_DETECTOR) == SERVICE_STEP_DETECTOR && mStepDetector == null) {
+			// Initialize StepDetector.
 			mStepDetector = new StepDetector(mContext, mOrientationService);
 			mServices.add(mStepDetector);
+		} else if ((services & SERVICE_STEP_DETECTOR) != SERVICE_STEP_DETECTOR && mStepDetector != null) {
+			// Remove StepDetector.
+			mServices.remove(mStepDetector);
+			mStepDetector.stop();
+			mStepDetector = null;
 		}
 		
 		if ((services & SERVICE_LOCATION) == SERVICE_LOCATION && mLocationService == null) {

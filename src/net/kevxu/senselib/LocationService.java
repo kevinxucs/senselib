@@ -128,15 +128,17 @@ public class LocationService extends SensorService implements LocationListener, 
 
 	@Override
 	protected void stop() {
-		mLocationServiceFusionThread.terminate();
-		Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");
-		try {
-			mLocationServiceFusionThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mLocationServiceFusionThread != null) {
+			mLocationServiceFusionThread.terminate();
+			Log.i(TAG, "Waiting for LocationServiceFusionThread to stop.");
+			try {
+				mLocationServiceFusionThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "LocationServiceFusionThread stoppped.");
+			mLocationServiceFusionThread = null;
 		}
-		Log.i(TAG, "LocationServiceFusionThread stoppped.");
-		mLocationServiceFusionThread = null;
 
 		mLocationManager.removeUpdates(this);
 		Log.i(TAG, "GPS update unregistered.");

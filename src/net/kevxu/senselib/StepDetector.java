@@ -130,15 +130,17 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 
 	@Override
 	protected void stop() {
-		mStepDetectorCalculationThread.terminate();
-		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
-		try {
-			mStepDetectorCalculationThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mStepDetectorCalculationThread != null) {
+			mStepDetectorCalculationThread.terminate();
+			Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
+			try {
+				mStepDetectorCalculationThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "StepDetectorCalculationThread stopped.");
+			mStepDetectorCalculationThread = null;
 		}
-		Log.i(TAG, "StepDetectorCalculationThread stopped.");
-		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");
