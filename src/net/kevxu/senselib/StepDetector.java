@@ -1,6 +1,6 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.kevxu.senselib.OrientationService.OrientationServiceListener;
@@ -100,7 +100,7 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 			throw new SensorNotAvailableException(notAvailabelSensors, "StepDetector");
 		}
 
-		mStepListeners = new ArrayList<StepListener>();
+		mStepListeners = new LinkedList<StepListener>();
 
 		if (stepListener != null) {
 			mStepListeners.add(stepListener);
@@ -130,15 +130,17 @@ public class StepDetector extends SensorService implements SensorEventListener, 
 
 	@Override
 	protected void stop() {
-		mStepDetectorCalculationThread.terminate();
-		Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
-		try {
-			mStepDetectorCalculationThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mStepDetectorCalculationThread != null) {
+			mStepDetectorCalculationThread.terminate();
+			Log.i(TAG, "Waiting for StepDetectorCalculationThread to stop.");
+			try {
+				mStepDetectorCalculationThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "StepDetectorCalculationThread stopped.");
+			mStepDetectorCalculationThread = null;
 		}
-		Log.i(TAG, "StepDetectorCalculationThread stopped.");
-		mStepDetectorCalculationThread = null;
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");

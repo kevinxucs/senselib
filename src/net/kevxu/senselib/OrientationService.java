@@ -1,6 +1,6 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
@@ -136,7 +136,7 @@ public class OrientationService extends SensorService implements SensorEventList
 			throw new SensorNotAvailableException(notAvailabelSensors, "Orientation Service");
 		}
 
-		mOrientationServiceListeners = new ArrayList<OrientationServiceListener>();
+		mOrientationServiceListeners = new LinkedList<OrientationServiceListener>();
 
 		if (orientationServiceListener != null) {
 			mOrientationServiceListeners.add(orientationServiceListener);
@@ -166,15 +166,17 @@ public class OrientationService extends SensorService implements SensorEventList
 
 	@Override
 	protected void stop() {
-		mOrientationSensorThread.terminate();
-		Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
-		try {
-			mOrientationSensorThread.join();
-		} catch (InterruptedException e) {
-			Log.w(TAG, e.getMessage(), e);
+		if (mOrientationSensorThread != null) {
+			mOrientationSensorThread.terminate();
+			Log.i(TAG, "Waiting for OrientationSensorThread to stop.");
+			try {
+				mOrientationSensorThread.join();
+			} catch (InterruptedException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
+			Log.i(TAG, "OrientationSensorThread stopped.");
+			mOrientationSensorThread = null;
 		}
-		Log.i(TAG, "OrientationSensorThread stopped.");
-		mOrientationSensorThread = null;
 
 		mSensorManager.unregisterListener(this);
 		Log.i(TAG, "Sensors unregistered.");

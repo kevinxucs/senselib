@@ -1,9 +1,10 @@
 package net.kevxu.senselib;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * Manager class. It makes sure only one instance of LocationService, 
@@ -15,6 +16,8 @@ import android.content.Context;
  * @author Kaiwen Xu
  */
 public class Sense {
+	
+	private static final String TAG = "Sense";
 	
 	/**
 	 * Orientation service.
@@ -38,7 +41,7 @@ public class Sense {
 	 */
 	public static final int SERVICE_ALL = 0xFFFFFFFF;
 
-	public static Sense mSense;
+	private static Sense mSense;
 	
 	private Context mContext;
 	
@@ -47,67 +50,92 @@ public class Sense {
 	private StepDetector mStepDetector;
 	private LocationService mLocationService;
 	
-	/**
-	 * Constructor for SenseLib. Enable all available services.
-	 * 
-	 * @param context Context.
-	 * @throws SensorNotAvailableException
-	 * 				If sensor required by a specific service is not present,
-	 * 				SensorNotAvailableException will be thrown. 
-	 */
-	private Sense(Context context) throws SensorNotAvailableException {
-		this(context, SERVICE_ALL);
-	}
-	
-	/**
-	 * Constructor for SenseLib. Choose the services you want to enable.
-	 * 
-	 * @param context Context.
-	 * @param services
-	 * 				Bit masked argument. Choose the services you want to enable.
-	 * 				For example, if you want to enable orientation service and
-	 * 				location service, you can pass the argument as
-	 * 				SERVICE_ORIENTATION|SERVICE_LOCATION.
-	 * @throws SensorNotAvailableException
-	 * 				If sensor required by a specific service is not present,
-	 * 				SensorNotAvailableException will be thrown. 
-	 */
 	private Sense(Context context, int services) throws SensorNotAvailableException {
 		mContext = context;
-		mServices = new ArrayList<SensorService>();
+		mServices = new LinkedList<SensorService>();
 		
 		initializeServices(services);
 	}
 	
-	public void initializeServices(int services) throws SensorNotAvailableException {
+	private void initializeServices(int services) throws SensorNotAvailableException {
 		if ((services & SERVICE_ORIENTATION) == SERVICE_ORIENTATION && mOrientationService == null) {
+			// Initialize OrientationService.
 			mOrientationService = new OrientationService(mContext);
 			mServices.add(mOrientationService);
+		} else if ((services & SERVICE_ORIENTATION) != SERVICE_ORIENTATION && mOrientationService != null) {
+			// Remove OrientationService.
+			mServices.remove(mOrientationService);
+			mOrientationService.stop();
+			mOrientationService = null;
 		}
 		
 		if ((services & SERVICE_STEP_DETECTOR) == SERVICE_STEP_DETECTOR && mStepDetector == null) {
+			// Initialize StepDetector.
 			mStepDetector = new StepDetector(mContext, mOrientationService);
 			mServices.add(mStepDetector);
+		} else if ((services & SERVICE_STEP_DETECTOR) != SERVICE_STEP_DETECTOR && mStepDetector != null) {
+			// Remove StepDetector.
+			mServices.remove(mStepDetector);
+			mStepDetector.stop();
+			mStepDetector = null;
 		}
 		
 		if ((services & SERVICE_LOCATION) == SERVICE_LOCATION && mLocationService == null) {
+			// Initialze LocationService.
 			mLocationService = new LocationService(mContext, mStepDetector);
 			mServices.add(mLocationService);
+		} else if ((services & SERVICE_LOCATION) != SERVICE_LOCATION && mLocationService != null) {
+			// Remove LocationService.
+			mServices.remove(mLocationService);
+			mStepDetector.stop();
+			mStepDetector = null;
 		}
+		
+		Log.i(TAG, "Enabled services: " + mServices);
 	}
 	
-	public static void init(Context context) throws SensorNotAvailableException {
-		init(context, SERVICE_ALL);
+	/**
+	 * Initialize Sense with all services on.
+	 * 
+	 * @param context Context of current activity or application.
+	 * @return Sense instance.
+	 * @throws SensorNotAvailableException If sensor required by a specific 
+	 * service is not present, SensorNotAvailableException will be thrown. 
+	 */
+	public static Sense init(Context context) throws SensorNotAvailableException {
+		return init(context, SERVICE_ALL);
 	}
-	
-	public static void init(Context context, int services) throws SensorNotAvailableException {
+
+	/**
+	 * Initialize Sense with services you want to enable. If you have already
+	 * initialized Sense, current initialized services will be matched with 
+	 * services parameter. So if some services have already been initialized,
+	 * it will be disabled if it's not indicated by services.
+	 * 
+	 * @param context Context of current activity or application.
+	 * @param services Bit masked argument. Choose the services you want to 
+	 * enable. For example, if you want to enable orientation service and 
+	 * location service, you can pass the argument as 
+	 * SERVICE_ORIENTATION|SERVICE_LOCATION.
+	 * @return Sense instance.
+	 * @throws SensorNotAvailableException If sensor required by a specific 
+	 * service is not present, SensorNotAvailableException will be thrown. 
+	 */
+	public static Sense init(Context context, int services) throws SensorNotAvailableException {
 		if (mSense == null) {
-			mSense = new Sense(context, services);
+			mSense = new Sense(context.getApplicationContext(), services);
 		} else {
 			mSense.initializeServices(services);
 		}
+		
+		return mSense;
 	}
 	
+	/**
+	 * Get Sense instance.
+	 * 
+	 * @return Sense instance.
+	 */
 	public static Sense getInstance() {
 		if (mSense == null) {
 			throw new SenseServiceException("init() has to be called.");
@@ -119,14 +147,14 @@ public class Sense {
 	/**
 	 * Check whether Sense has been initialized.
 	 * 
-	 * @return
+	 * @return true if has been initialized, false otherwise.
 	 */
 	public static boolean hasInit() {
 		return mSense != null;
 	}
 
 	/**
-	 * Call to start all the services you chose.
+	 * Call to start all the services you have initialized.
 	 */
 	public void start() {
 		for (SensorService service : mServices) {
@@ -137,7 +165,7 @@ public class Sense {
 	}
 
 	/**
-	 * Call to stop all the services you chose.
+	 * Call to stop all the services you have initialized.
 	 */
 	public void stop() {
 		for (SensorService service : mServices) {
@@ -147,7 +175,12 @@ public class Sense {
 		}
 	}
 	
-	public boolean hasOrientationSerivceInit() {
+	/**
+	 * Check whether Orientation Service has been initialized.
+	 * 
+	 * @return true if has been initialized, false otherwise.
+	 */
+	public boolean hasOrientationServiceInit() {
 		return mOrientationService != null;
 	}
 
@@ -159,6 +192,11 @@ public class Sense {
 		return mOrientationService;
 	}
 	
+	/**
+	 * Check whether Step Detector has been initialized.
+	 * 
+	 * @return true if has been initialized, false otherwise.
+	 */
 	public boolean hasStepDetectorInit() {
 		return mStepDetector != null;
 	}
@@ -171,6 +209,11 @@ public class Sense {
 		return mStepDetector;
 	}
 
+	/**
+	 * Check whether Location Service has been initialized.
+	 * 
+	 * @return true if has been initialized, false otherwise.
+	 */
 	public boolean hasLocationServiceInit() {
 		return mLocationService != null;
 	}
